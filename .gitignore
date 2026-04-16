@@ -1,0 +1,8 @@
+# Annotation output (optional: remove if you want to track annotations in git)
+annotations.json
+
+# Python
+__pycache__/
+*.pyc
+.env
+.venv/
