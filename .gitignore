@@ -1,8 +1,15 @@
-# Annotation output (optional: remove if you want to track annotations in git)
+# Annotation output
 annotations.json
+
+# Streamlit secrets (含 Google 凭证，绝对不能提交)
+.streamlit/secrets.toml
 
 # Python
 __pycache__/
 *.pyc
 .env
 .venv/
+
+# Videos (本地视频不提交，存放在 Hugging Face)
+CH-SIMS-emo-conflict/video/
+MELD_emo_conflict/clean/

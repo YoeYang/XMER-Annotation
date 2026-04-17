@@ -1,0 +1,455 @@
+{
+  "dataset": "MELD",
+  "subset": "clean",
+  "description": "情感模态冲突预实验——情景卡片（共22个样本）",
+  "generation_note": "情景卡片基于MELD标注文件上下文及《老友记》剧情知识生成，聚焦说话人主观体验，供跨模态情感标注使用。",
+  "fields": {
+    "人物身份": "说话者身份及与对方的关系",
+    "当前目标_利益": "说话者在该情境中想要什么（影响Goal Relevance与Conduciveness评估）",
+    "触发事件": "刚刚发生了什么，直接导致了这句话",
+    "权力关系": "若涉及上下级或强弱关系，说明其对Coping/Power评估的影响",
+    "标注提示": "提醒标注者关注的特定冲突点（不提示答案）"
+  },
+  "samples": [
+    {
+      "sample_id": "dia29_utt6",
+      "video_file": "dia29_utt6.mp4",
+      "source": "train",
+      "season": 9,
+      "episode": 23,
+      "dialogue_id": 29,
+      "utterance_id": 6,
+      "speaker": "Monica",
+      "emotion": "anger",
+      "sentiment": "negative",
+      "utterance": "Chandler, we have talked about this.",
+      "situation_card": {
+        "人物身份": "Monica，Chandler 的妻子，朋友圈中的情感管理者，习惯为身边人的关系把关。",
+        "当前目标_利益": "Monica 深知 Phoebe 仍对 Mike 情深，认为 David 此时求婚只会造成伤害。她想阻止悲剧发生，同时让 Chandler 明白夫妻间已有约定——不随意给朋友感情建议。",
+        "触发事件": "Chandler 轻描淡写地透露他鼓励了 David（Phoebe 的前男友）向 Phoebe 求婚，违反了夫妻间的默契。",
+        "权力关系": "夫妻关系，地位平等；但在朋友圈感情事务上，Monica 通常是实际的规则制定者，Chandler 在情感判断上更依赖她。",
+        "标注提示": "Monica 用丈夫全名开口加上 we have talked about this——这是家庭内部的管控式表达。她的愤怒是针对丈夫还是针对局面？面部和声音是否都呈现出均匀的愤怒，还是夹杂着焦虑或无奈？"
+      }
+    },
+    {
+      "sample_id": "dia34_utt4",
+      "video_file": "dia34_utt4.mp4",
+      "source": "train",
+      "season": 5,
+      "episode": 23,
+      "dialogue_id": 34,
+      "utterance_id": 4,
+      "speaker": "Rachel",
+      "emotion": "neutral",
+      "sentiment": "neutral",
+      "utterance": "I'm sorry. I'm done. I'm done.",
+      "situation_card": {
+        "人物身份": "Rachel，Ross 的前女友。Rachel 外表自信，但对涉及身体形象的尴尬极为敏感。",
+        "当前目标_利益": "Rachel 想尽快终结这段令她难堪的对话，重新找回镇定与自尊。昨晚她在公寓里裸体走动，没意识到 Ross 所在楼的其他居民都能看到，现在 Ross 拿这件事取笑她。",
+        "触发事件": "Ross 刚刚大笑并调侃了昨晚事件——Rachel 裸体被整栋楼目击。Rachel 已承认了尴尬，此刻想强行关闭这个话题。",
+        "权力关系": "前男友/朋友关系，地位平等；但此刻 Ross 占有信息优势（他亲眼见证了尴尬），Rachel 处于被调侃的位置。",
+        "标注提示": "「I'm done」被标注为 neutral/neutral，表达上是平静收尾，但上下文是持续的尴尬情境。Rachel 的面部和声音是否真的实现了情绪关闭，还是仍有残余的不自在或强撑的镇定？"
+      }
+    },
+    {
+      "sample_id": "dia90_utt2",
+      "video_file": "dia90_utt2.mp4",
+      "source": "test",
+      "season": 6,
+      "episode": 16,
+      "dialogue_id": 90,
+      "utterance_id": 2,
+      "speaker": "Rachel",
+      "emotion": "surprise",
+      "sentiment": "negative",
+      "utterance": "Good day for married people huh?",
+      "situation_card": {
+        "人物身份": "Rachel（架空时间线版本），嫁给了 Barry 但 Barry 出轨背叛了她；与 Ross 是老友。本集为 S6E15-16 的架空时间线特别集（The One That Could Have Been）。",
+        "当前目标_利益": "Rachel 正在消化丈夫出轨带来的痛苦。她不想正面崩溃，于是用黑色幽默处理自己的遭遇——同时也是对 Ross（他的妻子是同性恋）糟糕婚姻的一种苦涩呼应。",
+        "触发事件": "Rachel 刚向 Ross 说出丈夫 Barry 出轨的实情，Ross 则刚得知自己的妻子 Carol 是同性恋。两人在同一时刻面对各自婚姻的崩塌。",
+        "权力关系": "同等处境的老友，无明显权力差异；此刻两人互为彼此情绪的镜像。",
+        "标注提示": "这句话是讽刺——Rachel 表面在陈述事实，实际是苦涩的自嘲。标注为 surprise/negative，请注意：她的面部是否呈现出真实的惊愕，还是苦笑或无奈？声音和面部对讽刺意图的传达是否一致？"
+      }
+    },
+    {
+      "sample_id": "dia103_utt2",
+      "video_file": "dia103_utt2.mp4",
+      "source": "train",
+      "season": 8,
+      "episode": 4,
+      "dialogue_id": 103,
+      "utterance_id": 2,
+      "speaker": "Kristen",
+      "emotion": "surprise",
+      "sentiment": "positive",
+      "utterance": "Really?",
+      "situation_card": {
+        "人物身份": "Kristen，Ross 约来的约会对象。两人正处于初次约会阶段，彼此了解有限。",
+        "当前目标_利益": "Kristen 正在评估 Ross 作为约会对象的吸引力。听到 Ross 说自己曾背包穿越西欧，她表现出好奇和欣赏——她希望这次约会顺利进行。",
+        "触发事件": "Ross 声称几年前曾背包穿越西欧（实际上是他为了显得有趣而即兴编造的故事）。",
+        "权力关系": "约会双方，地位平等；Ross 在主动建构形象，Kristen 在评估和回应。",
+        "标注提示": "「Really?」只有一个词却承载了 Kristen 的兴趣程度。标注为 surprise/positive——这是真诚的惊喜和欣赏，还是礼貌性的客套回应？声音语调和面部表情是否对齐，能区分出真实热情与社交式回应？"
+      }
+    },
+    {
+      "sample_id": "dia103_utt4",
+      "video_file": "dia103_utt4.mp4",
+      "source": "train",
+      "season": 8,
+      "episode": 4,
+      "dialogue_id": 103,
+      "utterance_id": 4,
+      "speaker": "Kristen",
+      "emotion": "neutral",
+      "sentiment": "neutral",
+      "utterance": "I studied for a year in Barcelona.",
+      "situation_card": {
+        "人物身份": "Kristen，Ross 的约会对象，此刻正在听 Ross 讲述他「背包游巴塞罗那」的故事。",
+        "当前目标_利益": "Kristen 随口分享自己曾在巴塞罗那学习一年的经历，可能出于共鸣，也可能是在建立共同话题。她并不知道 Ross 正在编故事，而她的这句话恰恰能揭穿他。",
+        "触发事件": "Ross 刚提到他在巴塞罗那徒步的故事，Kristen 自然地分享起自己的留学经历。",
+        "权力关系": "约会双方，地位平等；Kristen 此时无意中拥有信息优势（她真正了解巴塞罗那），Ross 处于潜在被拆穿的脆弱位置。",
+        "标注提示": "这句话被标注为 neutral/neutral，但在语境中含有戏剧性反讽——Kristen 的真实经历让 Ross 的谎言岌岌可危。Kristen 说出这句话时面部是否真的全无特别表情？声音中是否有任何微妙的疑惑或试探，还是确实是无心之语？"
+      }
+    },
+    {
+      "sample_id": "dia120_utt11",
+      "video_file": "dia120_utt11.mp4",
+      "source": "train",
+      "season": 4,
+      "episode": 12,
+      "dialogue_id": 120,
+      "utterance_id": 11,
+      "speaker": "Joey",
+      "emotion": "neutral",
+      "sentiment": "neutral",
+      "utterance": "Big fat goalie.",
+      "situation_card": {
+        "人物身份": "Joey，正在参加由 Ross 主持的知识抢答赛，与 Chandler 组成男生队，对抗 Rachel 和 Monica 组成的女生队。",
+        "当前目标_利益": "Joey 的团队正在抢答有关 Monica 和 Rachel 私密问题。答对这道题关乎最终能否赢得女生的公寓居住权——这场博弈的赌注极高。",
+        "触发事件": "Ross 在限时抢答中提问：Monica 担任曲棍球守门员时的绰号是什么？Joey 迅速抢答作答。",
+        "权力关系": "比赛情境，Ross 作为中立裁判握有话语权；男女两队处于对立竞争关系，双方公寓的归属悬而未决。",
+        "标注提示": "「Big fat goalie」被标注为 neutral，但这是全集张力最高的知识竞赛场景之一。Joey 答题时的面部和语气是否呈现出与高压赌局相称的紧张感，还是真的表现得平静自如？"
+      }
+    },
+    {
+      "sample_id": "dia146_utt3",
+      "video_file": "dia146_utt3.mp4",
+      "source": "train",
+      "season": 3,
+      "episode": 14,
+      "dialogue_id": 146,
+      "utterance_id": 3,
+      "speaker": "Phoebe",
+      "emotion": "anger",
+      "sentiment": "negative",
+      "utterance": "You think you know me so well.",
+      "situation_card": {
+        "人物身份": "Phoebe，Monica 的好友。Phoebe 的多年音乐搭档 Leslie 不打招呼便离开，改行写商业广告歌曲，令 Phoebe 深感被抛弃和背叛。",
+        "当前目标_利益": "Phoebe 表面在等 Leslie 主动联系，内心渴望对方回头道歉并恢复友谊，但自尊不允许她主动示弱。她想维护自己不在乎的形象。",
+        "触发事件": "Monica 直接说「你显然想给她打电话，为什么不打呢？」——这句话戳穿了 Phoebe 的防线，让她的真实渴望无处遁形。",
+        "权力关系": "平等朋友关系；但 Monica 在此刻占据洞察优势，令 Phoebe 感到被看透而脆弱。",
+        "标注提示": "Phoebe 用愤怒回应 Monica，但这份愤怒是用来掩盖受伤和思念的防御性反应。她的面部/声音中是否有愤怒背后的脆弱或委屈透露出来？情绪是单一的愤怒，还是混合体？"
+      }
+    },
+    {
+      "sample_id": "dia156_utt9",
+      "video_file": "dia156_utt9.mp4",
+      "source": "train",
+      "season": 8,
+      "episode": 2,
+      "dialogue_id": 156,
+      "utterance_id": 9,
+      "speaker": "Rachel",
+      "emotion": "joy",
+      "sentiment": "positive",
+      "utterance": "Oh Phoebe!",
+      "situation_card": {
+        "人物身份": "Rachel，刚刚知道自己怀孕（父亲是 Ross）。Phoebe 是她的闺蜜，一直在给她情感支持，此刻催促她去面对 Tag（她的前男友）。",
+        "当前目标_利益": "Rachel 需要鼓起勇气去见 Tag，她既害怕误会，又感激 Phoebe 一路陪伴。她想借助 Phoebe 的鼓励完成这个艰难的一步。",
+        "触发事件": "Phoebe 表达了对 Rachel 的支持，给了她面对局面的精神力量，Rachel 带着感激和紧张说出这句话。",
+        "权力关系": "平等闺蜜关系；此刻 Phoebe 是情感引导者，Rachel 是被支持者。",
+        "标注提示": "「Oh Phoebe!」被标注为 joy/positive，但 Rachel 的处境充满压力（未知的 Tag 即将出现，妊娠秘密尚未披露）。这份喜悦是真实的感激与温情，还是夹杂着紧张和如释重负？面部和声音是否呈现单纯的正向情绪，还是更复杂的混合体？"
+      }
+    },
+    {
+      "sample_id": "dia163_utt9",
+      "video_file": "dia163_utt9.mp4",
+      "source": "train",
+      "season": 6,
+      "episode": 25,
+      "dialogue_id": 163,
+      "utterance_id": 9,
+      "speaker": "Monica",
+      "emotion": "anger",
+      "sentiment": "negative",
+      "utterance": "That-that hes against marriage and always will be!",
+      "situation_card": {
+        "人物身份": "Monica，Chandler 的女朋友，深爱 Chandler 并渴望婚姻。Joey 是 Chandler 的室友兼好友，此刻是夹在两人之间的信使。",
+        "当前目标_利益": "Monica 正处于极度痛苦中——她认为 Chandler 永远不会与她结婚，而前男友 Richard 刚刚向她求婚。她需要弄清楚 Chandler 的真实态度，但 Joey 告诉她的只有噩耗。",
+        "触发事件": "Joey 按照 Chandler 的指示（Chandler 实际上正在秘密挑选婚戒）对外宣称 Chandler 讨厌婚姻。Monica 将这句话信以为真，陷入心碎。",
+        "权力关系": "Monica 与 Joey 是平等的朋友；但 Joey 掌握着 Monica 不知道的关键秘密（Chandler 实际上要求婚），信息不对称让 Monica 在情感上处于弱势。",
+        "标注提示": "Monica 对 Joey 表达的是愤怒，但她真正的情绪是心碎和绝望——她以为自己与 Chandler 的未来就此终结。她重复强调 against marriage and always will be 时，面部/声音中是否有愤怒之下的哭意或崩溃迹象？"
+      }
+    },
+    {
+      "sample_id": "dia165_utt6",
+      "video_file": "dia165_utt6.mp4",
+      "source": "train",
+      "season": 4,
+      "episode": 7,
+      "dialogue_id": 165,
+      "utterance_id": 6,
+      "speaker": "Chandler",
+      "emotion": "fear",
+      "sentiment": "negative",
+      "utterance": "Oh, I dont know.",
+      "situation_card": {
+        "人物身份": "Chandler，Joey 的室友兼最好的朋友。Chandler 最近买了一台昂贵的大屏电视送给 Joey 作为暗中补偿——因为他对 Joey 的女朋友 Kathy 产生了感情。",
+        "当前目标_利益": "Chandler 想维持和 Joey 的友谊，同时压制对 Kathy 的感情。Joey 正在感激地夸赞他是有史以来最好的朋友，Chandler 内心承受着巨大的道德压力。",
+        "触发事件": "Joey 热情地称赞 Chandler 是最好的朋友，并对他的慷慨赠礼深表感激——而 Chandler 清楚地知道这份礼物是内疚驱动的，并非纯粹的友情。",
+        "权力关系": "平等室友/好友关系；但 Chandler 此刻处于道德劣势，他的好友身份正处于自我质疑中。",
+        "标注提示": "「Oh, I don't know」是一个模糊的搪塞，被标注为 fear/negative。Chandler 的面部和声音是否流露出难以承受赞美的内疚感？他的语气是谦虚，还是隐藏着恐惧和不安？"
+      }
+    },
+    {
+      "sample_id": "dia177_utt5",
+      "video_file": "dia177_utt5.mp4",
+      "source": "train",
+      "season": 8,
+      "episode": 2,
+      "dialogue_id": 177,
+      "utterance_id": 5,
+      "speaker": "Rachel",
+      "emotion": "fear",
+      "sentiment": "negative",
+      "utterance": "Nothing! Phoebe kinda made a mistake. But yknow you do wear that sweater a lot, are you involved in some kind of dare?",
+      "situation_card": {
+        "人物身份": "Rachel，刚发现自己怀孕（父亲是 Ross）。Tag 是她的前男友，此刻出现是因为 Phoebe 错误地联系了他，以为他是孩子的父亲。",
+        "当前目标_利益": "Rachel 必须在 Tag 面前掩盖自己怀孕的事实，化解 Phoebe 造成的误会，并在不透露任何信息的情况下让这场会面尽快结束。",
+        "触发事件": "Tag 进来问「发生什么事了？」Rachel 意识到 Tag 并不知道真实情况，立刻启动掩盖模式：否认、归咎于 Phoebe，再用评论他的毛衣来转移话题。",
+        "权力关系": "前男友与前女友关系，社交地位平等；但 Rachel 此刻处于信息控制地位，同时承受着极大的心理压力。",
+        "标注提示": "Rachel 的回答是恐惧掩盖下的混乱应对——先否认，再归咎他人，再用无关话题转移注意力。她的面部是否表现出努力控制的惊慌，还是她成功维持了表面的镇定？语速和眼神是否有泄露？"
+      }
+    },
+    {
+      "sample_id": "dia192_utt5",
+      "video_file": "dia192_utt5.mp4",
+      "source": "train",
+      "season": 8,
+      "episode": 7,
+      "dialogue_id": 192,
+      "utterance_id": 5,
+      "speaker": "Rachel",
+      "emotion": "disgust",
+      "sentiment": "negative",
+      "utterance": "Ewww. Yeah. Umm. I think Im gonna stay here.",
+      "situation_card": {
+        "人物身份": "Rachel，已怀孕，目前在 Joey 的公寓借住；Ross 是孩子的父亲，正在帮她物色住处。两人处于关系模糊的共同照料阶段。",
+        "当前目标_利益": "Rachel 需要找到合适的住所，但 Ross 带来的好消息（楼里老太太去世了，临死前的愿望是让 Ross 亲吻她）让她对这套公寓产生了强烈的负面联想，使她放弃了搬过去的念头。",
+        "触发事件": "Ross 兴奋地告诉 Rachel 楼里老太太去世的消息，并提到了老太太临终愿望的具体细节——Rachel 对整个故事感到恶心。",
+        "权力关系": "朋友兼前任，地位平等；Ross 此刻是信息传递方和情绪上的兴奋者，Rachel 是接收方。",
+        "标注提示": "「Ewww」是高度本能的厌恶反应，随后的「I think I'm gonna stay here」是实际决定。Rachel 的厌恶是在面部/声音上真实流露，还是被之后的理性话语迅速压制？厌恶情绪与后续平静决定之间是否有明显的表情切换？"
+      }
+    },
+    {
+      "sample_id": "dia195_utt3",
+      "video_file": "dia195_utt3.mp4",
+      "source": "train",
+      "season": 3,
+      "episode": 5,
+      "dialogue_id": 195,
+      "utterance_id": 3,
+      "speaker": "Rachel",
+      "emotion": "disgust",
+      "sentiment": "negative",
+      "utterance": "You freak.",
+      "situation_card": {
+        "人物身份": "Rachel，Central Perk 的咖啡师；Ross 是她的前男友兼老顾客。两人尽管已分手，仍保持着带有戏谑意味的亲密朋友关系。",
+        "当前目标_利益": "Rachel 刚完整复述了 Ross 点的极度复杂的花式咖啡订单，背出全部参数后，用一句话表达她的评价。值得注意的是，Ross 说了句「谢谢」，仿佛这是赞美。",
+        "触发事件": "Ross 点了一杯参数异常繁琐的定制咖啡（半低咖啡因、双份、榛子口味、脱脂、去泡沫、加奶油、超热拿铁）。Rachel 一口气流利复述完毕，随即情绪爆发。",
+        "权力关系": "咖啡师与顾客的服务关系，但二人的前任/朋友身份使这个厌恶更接近亲密的调侃而非真实嫌弃。",
+        "标注提示": "「You freak」被标注为 disgust/negative，但在语境中带有高度玩笑性质。Rachel 的厌恶是真实的职业烦恼（这种订单太麻烦），还是带着笑意的嗔怒？面部和语气能否区分出真厌恶与假厌恶？"
+      }
+    },
+    {
+      "sample_id": "dia237_utt2",
+      "video_file": "dia237_utt2.mp4",
+      "source": "train",
+      "season": 3,
+      "episode": 12,
+      "dialogue_id": 237,
+      "utterance_id": 2,
+      "speaker": "Monica",
+      "emotion": "anger",
+      "sentiment": "negative",
+      "utterance": "Y'know, so I don't read as many important books as you do, and I don't write trick poems that seem to be about one thing but are actually about something else.",
+      "situation_card": {
+        "人物身份": "Monica，正在约会餐厅员工 Julio（诗人兼跑堂）。Monica 刚刚读了 Julio 写的诗《空花瓶》，她认为诗中描写的是她——美丽但内心空洞。",
+        "当前目标_利益": "Monica 要捍卫自己的价值和自尊。她被一首诗深深伤害，但无法反驳诗本身，只能通过列举自己与 Julio 的差异来回击——我不是文化人，但我是真实的人。",
+        "触发事件": "Monica 发现 Julio 写了一首暗喻她只是空花瓶的诗，认为他在用文化优越感贬低她，当面质问他诗的含义。",
+        "权力关系": "约会关系，地位平等；但 Julio 是受过教育的诗人，Monica 在文化资本上感到被俯视，导致心理上的弱势——她用愤怒弥补这种不平衡。",
+        "标注提示": "Monica 的愤怒带有强烈的受伤和自我怀疑作为底色——她在愤怒中坦白了自己对自身的部分认知（我确实不读那些重要的书）。她的面部在表达愤怒时是否同时流露出脆弱或委屈？愤怒是否在某个时刻破防？"
+      }
+    },
+    {
+      "sample_id": "dia295_utt1",
+      "video_file": "dia295_utt1.mp4",
+      "source": "train",
+      "season": 7,
+      "episode": 11,
+      "dialogue_id": 295,
+      "utterance_id": 1,
+      "speaker": "Phoebe",
+      "emotion": "neutral",
+      "sentiment": "neutral",
+      "utterance": "Well Its a date.",
+      "situation_card": {
+        "人物身份": "Phoebe，Joey 的好朋友。二人之前约好今晚一起吃饭，但 Phoebe 临时有了约会，打算爽约。",
+        "当前目标_利益": "Phoebe 想如实告知 Joey 她有约会，但并不觉得这需要太多解释——在她看来，有约会是合理的理由。她的目标是简单说明情况然后离开，并不预期会有太大冲突。",
+        "触发事件": "Joey 追问 Phoebe 刚才发生了什么，Phoebe 坦然告知她有约会，要取消和 Joey 的计划。",
+        "权力关系": "平等好友；但在这个情境中，Joey 是被爽约的一方，感到不被尊重，即将爆发强烈不满。",
+        "标注提示": "「Well, it's a date」被标注为 neutral/neutral，Phoebe 的语气异常平静，仿佛完全正常——而 Joey 随后的反应是震惊和愤怒。Phoebe 的面部是否有任何对 Joey 感受的预判或歉意，还是真的漠然？这种中性是平静还是冷漠？"
+      }
+    },
+    {
+      "sample_id": "dia332_utt13",
+      "video_file": "dia332_utt13.mp4",
+      "source": "train",
+      "season": 8,
+      "episode": 1,
+      "dialogue_id": 332,
+      "utterance_id": 13,
+      "speaker": "Ross",
+      "emotion": "surprise",
+      "sentiment": "negative",
+      "utterance": "Im the nice one!",
+      "situation_card": {
+        "人物身份": "Ross，在 Monica 和 Chandler 的婚礼宴会上。他与 Joey 都在试图引起婚礼宾客 Mona 的注意（Mona 后来成为 Ross 的女朋友）。Joey 在社交场合比 Ross 更自然。",
+        "当前目标_利益": "Ross 迫切地想要证明自己比 Joey 更值得被 Mona 欣赏——他整晚陪孩子们跳舞，自认为做了善良的事，却没有得到应有的认可。他想要被看见和被肯定。",
+        "触发事件": "Ross 感觉 Joey 因为更轻松外向的魅力抢走了 Mona 的注意，他意识到自己一整晚的付出（陪孩子跳舞）反而没有加分——这令他十分不甘心。",
+        "权力关系": "平等好友之间的竞争；Joey 在社交魅力上天然占优，Ross 在此刻处于防御状态。",
+        "标注提示": "「I'm the nice one!」是一句被迫的自我辩护，标注为 surprise/negative——Ross 对自己被忽视感到真实的愤愤不平。他的面部是否呈现出受伤的惊愕，还是带有因不得不这样宣称自己好而产生的窘迫？"
+      }
+    },
+    {
+      "sample_id": "dia358_utt9",
+      "video_file": "dia358_utt9.mp4",
+      "source": "train",
+      "season": 3,
+      "episode": 8,
+      "dialogue_id": 358,
+      "utterance_id": 9,
+      "speaker": "Phoebe",
+      "emotion": "anger",
+      "sentiment": "negative",
+      "utterance": "Because, every time I go to the dentist, somebody dies.",
+      "situation_card": {
+        "人物身份": "Phoebe，在 Central Perk 与朋友们聊天。她真诚地相信自己每次去看牙医，生命中就有人死亡——她的姑妈、邮差、牛仔朋友 Albino Bob 都在她看牙期间去世了。",
+        "当前目标_利益": "Phoebe 想解释自己为什么无法去看牙医，让朋友们理解并认真对待她的顾虑，而不是被嘲笑或否定。她的恐惧是真实的，她想被严肃对待。",
+        "触发事件": "Ross 提议帮她推荐一位好牙医，Chandler 已经在用玩笑回应（「那就是找不到牙医的问题」）。Phoebe 在回答为什么她有牙医却无法去看诊的时候，正承受着不被理解的挫败感。",
+        "权力关系": "朋友之间平等关系；但 Chandler 和 Ross 的理性/幽默立场使 Phoebe 处于被质疑的弱势，她需要用坚定来抵御被嘲笑。",
+        "标注提示": "Phoebe 的愤怒（anger/negative）背后是受挫的真诚——她不是无理取闹，她有证据支持自己的信念。她陈述这件事时更接近挫败和委屈，还是确实是愤怒？面部/声音的情绪是否与这句话的冷静陈述性语气一致？"
+      }
+    },
+    {
+      "sample_id": "dia517_utt2",
+      "video_file": "dia517_utt2.mp4",
+      "source": "train",
+      "season": 8,
+      "episode": 14,
+      "dialogue_id": 517,
+      "utterance_id": 2,
+      "speaker": "Phoebe",
+      "emotion": "neutral",
+      "sentiment": "neutral",
+      "utterance": "Yeah, you like that dont you?",
+      "situation_card": {
+        "人物身份": "Phoebe，专业按摩师，正在给 Monica 进行按摩。Monica 是她的闺蜜，也是出了名地对事物有强烈反应的人（S8E14 The One with the Secret Closet）。",
+        "当前目标_利益": "Phoebe 在进行一次专业按摩，试图帮 Monica 放松。她的目标是完成工作，但 Monica 在按摩过程中发出的声音让整个场景充满喜感。这句话是职业性的确认顾客满意度。",
+        "触发事件": "Phoebe 刚刚施加了某个按压动作，Monica 发出了强烈的「Oh God!」式反应。整段按摩的声音和对话在语境之外听起来极为暧昧，产生了强烈的情境反差。",
+        "权力关系": "服务提供者（Phoebe）与顾客（Monica）的关系；同时也是闺蜜的亲密关系，Phoebe 在这一情境中掌握主导权。",
+        "标注提示": "「Yeah, you like that don't you?」被标注为 neutral/neutral，Phoebe 的语气应当是专业平稳的。但整个场景的语境（Monica 的强烈反应 + 措辞的双重含义）使这句话具有强烈歧义性。Phoebe 的面部和声音是否真的维持了中性职业感，还是有任何压抑的笑意或尴尬？"
+      }
+    },
+    {
+      "sample_id": "dia574_utt16",
+      "video_file": "dia574_utt16.mp4",
+      "source": "train",
+      "season": 5,
+      "episode": 5,
+      "dialogue_id": 574,
+      "utterance_id": 16,
+      "speaker": "Joey",
+      "emotion": "surprise",
+      "sentiment": "negative",
+      "utterance": "All right! Man, this is unbelievable! I mean, it's",
+      "situation_card": {
+        "人物身份": "Joey，Chandler 和 Monica 最好的朋友之一。他刚刚发现 Chandler 和 Monica 几个月来一直在秘密谈恋爱（自伦敦之行后），而自己被完全蒙在鼓里（S5E5 The One with the Kips）。",
+        "当前目标_利益": "Joey 想要表达自己的震惊和被排除在外的感受，但 Monica 和 Chandler 恳请他不要告诉任何人——他要在巨大的惊讶和克制之间挣扎。",
+        "触发事件": "Monica 和 Chandler 终于向 Joey 坦白了他们的关系，并立刻请求他保密。Joey 接受了，但脑子里还在飞速消化这个信息，话说了一半就停下来了（「I mean, it's——」）。",
+        "权力关系": "平等好友；但 Chandler 和 Monica 共同向 Joey 施压要求保密，Joey 在情感上被孤立——他没有人可以倾诉这个冲击。",
+        "标注提示": "「All right!」在语境之外听起来像是欢呼，但实际上是震惊后的妥协和感叹。句子被标注为 surprise/negative 且话戛然而止。Joey 的面部和语气是否充分传达出他被突袭、被保密要求压制的复杂状态？「All right!」说出来时看起来是积极的还是被迫的？"
+      }
+    },
+    {
+      "sample_id": "dia712_utt2",
+      "video_file": "dia712_utt2.mp4",
+      "source": "train",
+      "season": 8,
+      "episode": 20,
+      "dialogue_id": 712,
+      "utterance_id": 2,
+      "speaker": "Joey",
+      "emotion": "fear",
+      "sentiment": "negative",
+      "utterance": "But the auditions in a couple hours and I dont even understand the game.",
+      "situation_card": {
+        "人物身份": "Joey，演员，刚获得游戏节目主持人试镜机会（节目名为 Bamboozled）。他通常对自己的表演能力非常自信，但规则类内容令他犯难。",
+        "当前目标_利益": "Joey 想通过这次试镜，但面临现实障碍：他完全搞不懂这个游戏的玩法。他需要在几小时内彻底掌握游戏，才能在镜头前自然地主持。",
+        "触发事件": "Joey 意识到试镜已经近在眼前，但他对游戏规则的理解仍然一团浆糊。Chandler 和 Ross 自告奋勇帮他练习，Joey 向他们承认了自己的困境。",
+        "权力关系": "平等好友；Ross 和 Chandler 在此刻扮演协助者角色，Joey 处于有需求的一方。Joey 在知识理解上处于弱势，但在演艺能力上依然自信。",
+        "标注提示": "Joey 坦诚承认「我不懂这个游戏」——对他而言这是罕见的公开示弱。标注为 fear/negative。他的面部/声音是否呈现出与平时自信形象不同的脆弱感？还是他的表达仍带有某种轻描淡写的随意？"
+      }
+    },
+    {
+      "sample_id": "dia792_utt12",
+      "video_file": "dia792_utt12.mp4",
+      "source": "train",
+      "season": 9,
+      "episode": 19,
+      "dialogue_id": 792,
+      "utterance_id": 12,
+      "speaker": "Rachel",
+      "emotion": "anger",
+      "sentiment": "negative",
+      "utterance": "But what choice did I have. He was keeping my sister in a",
+      "situation_card": {
+        "人物身份": "Rachel，此刻在扮演 Days of Our Lives 中的角色 Olivia，与 Joey（扮演 Drake Remoray）对戏练习台词。Rachel 自己深陷对 Drake Remoray 这个角色的迷恋（S9E19 The One with Rachel's Dream）。",
+        "当前目标_利益": "从剧情角色角度，Olivia 正在为自己的婚姻选择辩护，表达角色的愤怒和委屈。从 Rachel 自身角度，她在享受与 Joey 对戏的亲密感，同时对自己在这个情境中的真实感受感到困惑。",
+        "触发事件": "Joey（作为 Drake Remoray）说了「那我们之间的感情呢？我没办法接受」，Rachel 必须代入 Olivia，以愤怒回应——但台词说了一半被打断。",
+        "权力关系": "排练场景中，Joey（有丰富肥皂剧经验）是引导者，Rachel 是初次尝试者；但两人作为好友是平等的。Rachel 的内心情感（对角色的迷恋）使这个排练场景对她而言更具个人色彩。",
+        "标注提示": "这是表演中的情绪——anger 是角色 Olivia 的，而非 Rachel 本人的。Rachel 在表演这段台词时，面部/声音是否完全进入角色，还是有 Rachel 自己的情绪（兴奋、尴尬、困惑）在表演缝隙中透出？表演情绪与真实情绪的边界是本样本的核心观察点。"
+      }
+    },
+    {
+      "sample_id": "dia884_utt8",
+      "video_file": "dia884_utt8.mp4",
+      "source": "train",
+      "season": 4,
+      "episode": 7,
+      "dialogue_id": 884,
+      "utterance_id": 8,
+      "speaker": "Joey",
+      "emotion": "anger",
+      "sentiment": "negative",
+      "utterance": "Yeah-yeah. And the craziest thing is that I just ate a whole pizza by myself!",
+      "situation_card": {
+        "人物身份": "Joey，同时约了两个女生（Casey 和 Kathy）在一晚上吃饭，并已独自吃掉了一整个比萨打底。Chandler 是他的室友，暗恋 Joey 的女朋友 Kathy（S4E7 The One Where Chandler Crosses the Line）。",
+        "当前目标_利益": "Joey 想捍卫自己同时约会多个女生的权利，把这件事说得理所当然甚至值得炫耀。他对 Chandler 日益明显的不安感到困惑和不耐烦。",
+        "触发事件": "Chandler 以异常紧张的语气追问 Joey 关于与 Kathy 约会的事（「What?」）。Joey 以反问加夸张细节回击，强调自己毫无愧疚——顺带提了一句他一个人吃完了整个比萨。",
+        "权力关系": "平等室友关系；但 Chandler 掌握着 Joey 不知道的秘密（他对 Kathy 的感情），同时在情绪上处于被动焦虑的状态。Joey 表面占据主动，Chandler 暗地里煎熬。",
+        "标注提示": "Joey 的这句话被标注为 anger/negative，但内容更像是炫耀或挑衅式的反问（「疯狂的是我一个人吃了整个比萨！」）。Joey 说这句话时的面部/声音是真的带着对 Chandler 质疑的防御性怒气，还是更接近无忧无虑的得意？情绪标注与实际表达是否存在落差？"
+      }
+    }
+  ]
+}

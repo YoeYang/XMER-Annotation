@@ -1,0 +1,474 @@
+{
+  "dataset": "CH-SIMS",
+  "subset": "clean",
+  "description": "情感模态冲突预实验——情景卡片（共30个样本）",
+  "generation_note": "情景卡片基于CH-SIMS标注文件剧情知识生成，聚焦说话人主观体验，供跨模态情感标注使用。",
+  "fields": {
+    "人物身份": "说话者身份及与对方的关系",
+    "当前目标_利益": "说话者在该情境中想要什么（影响Goal Relevance与Conduciveness评估）",
+    "触发事件": "刚刚发生了什么，直接导致了这句话",
+    "权力关系": "若涉及上下级或强弱关系，说明其对Coping/Power评估的影响",
+    "标注提示": "提醒标注者关注的特定冲突点（不提示答案）"
+  },
+  "samples": [
+    {
+      "sample_id": "aqgy3_0001_00016",
+      "video_file": "aqgy3_0001_00016.mp4",
+      "source": "aqgy3",
+      "season": 3,
+      "episode": 1,
+      "speaker": "Youyou Tang",
+      "sentiment": "positive",
+      "utterance": "你还关注他，好变态哦。",
+      "situation_card": {
+        "人物身份": "Youyou Tang is speaking to Lv Ziqiao, who is her friend, housemate-circle companion, and relative by family connection.",
+        "当前目标_利益": "She is teasing Ziqiao for still following information about Yumo's ex-boyfriend, while expressing curiosity and keeping the conversation playful.",
+        "触发事件": "Ziqiao searched online for Yumo-related information and found updates from Yumo's former boyfriend, which led others to notice his unusual attention.",
+        "权力关系": "Equal friendship relationship with no formal hierarchy.",
+        "标注提示": "The phrase '变态哦' is likely playful teasing rather than real hostility. Examine whether facial expression and tone show amusement, mockery, jealousy, or light criticism."
+      }
+    },
+    {
+      "sample_id": "aqgy5_0008_00031",
+      "video_file": "aqgy5_0008_00031.mp4",
+      "source": "aqgy5",
+      "season": 5,
+      "episode": 8,
+      "speaker": "Curry",
+      "sentiment": "positive",
+      "utterance": "太好了，我就说游戏天才这个人设定好吧。",
+      "situation_card": {
+        "人物身份": "Curry Jiang is Ziqiao's friend and has been actively helping with his livestreaming career.",
+        "当前目标_利益": "She wants to prove that her earlier advice was correct and gain recognition for contributing to the success.",
+        "触发事件": "Meijia brings good news about strong livestream sales. Curry immediately attributes the success to the 'gaming genius' persona she previously suggested.",
+        "权力关系": "Equal friendship relationship. Curry takes an active advising role, while Ziqiao appears reluctant to fully accept her help.",
+        "标注提示": "The line sounds positive and excited, but may also contain pride, self-credit, or playful pressure. Check whether facial expression and tone emphasize joy, boasting, or validation-seeking."
+      }
+    },
+    {
+      "sample_id": "aqgy5_0015_00015",
+      "video_file": "aqgy5_0015_00015.mp4",
+      "source": "aqgy5",
+      "season": 5,
+      "episode": 15,
+      "speaker": "Wei Zhang",
+      "sentiment": "negative",
+      "utterance": "每次约会都写在了报告上，满满的都是回忆啊。",
+      "situation_card": {
+        "人物身份": "Zhang Wei has just been broken up with after a three-month relationship trial period. He is talking to close friends and expressing frustration.",
+        "当前目标_利益": "He wants to vent his sadness, revisit the emotional memories of the relationship, and seek sympathy from his friends.",
+        "触发事件": "While complaining to friends at the bar, he looks at the report that documented each date, which reminds him of the relationship and its disappointing outcome.",
+        "权力关系": "Equal friendship relationship in an emotionally supportive setting.",
+        "标注提示": "The line sounds nostalgic on the surface, but may carry bitterness, disappointment, or self-mockery. Check whether facial expression and tone convey sadness more than sentimentality."
+      }
+    },
+    {
+      "sample_id": "aqgy5_0020_00005",
+      "video_file": "aqgy5_0020_00005.mp4",
+      "source": "aqgy5",
+      "season": "5",
+      "episode": "20",
+      "speaker": "Ziqiao Lv",
+      "sentiment": "positive",
+      "utterance": "曾老师知道一定会非常感动的。",
+      "situation_card": {
+        "人物身份": "Ziqiao Lv is Yifei's close friend and housemate-circle companion. He is discussing Yifei's surprise plan for Zeng Xiaoxian with the others in the apartment.",
+        "当前目标_利益": "He supports Yifei's romantic plan and expresses confidence that Zeng Xiaoxian will be deeply touched. At the same time, the group atmosphere inspires him to think about preparing a gift for Meijia as well.",
+        "触发事件": "Yifei tells everyone that she plans to secretly travel to the Alxa desert to surprise Zeng Xiaoxian because he cannot return home due to work.",
+        "权力关系": "Equal friendship relationship. Yifei is leading the discussion, while the others respond and offer emotional support.",
+        "标注提示": "The line is positive and supportive. Check whether facial expression and tone convey sincere admiration, playful teasing, or emotional warmth."    
+      }
+    },
+    {
+      "sample_id": "video_0053_0011",
+      "video_file": "video_0053_0011.mp4",
+      "source": "《演技派》即兴表演",
+      "season": "",
+      "episode": "",
+      "speaker": "Yuwen Wang",
+      "sentiment": "negative",
+      "utterance": "生日快乐",
+      "situation_card": {
+        "人物身份": "Yuwen Wang is portraying a former lover who unexpectedly reunites with an ex-partner after many years apart. The two once shared an intimate relationship but are now emotionally distant.",
+        "当前目标_利益": "She wants to maintain composure during the reunion and deliver a simple birthday greeting, while suppressing unresolved feelings, regret, and emotional pain.",
+        "触发事件": "The former couple suddenly meets again by chance on the other person's birthday. This brief greeting reactivates memories of their past relationship and what has been lost.",
+        "权力关系": "Former romantic partners with equal status. However, both hold emotional influence over each other because of their shared history.",
+        "标注提示": "Although the line is polite and neutral on the surface, the underlying emotion may be sadness, longing, restraint, or bitterness. Focus on eye contact, pauses, facial tension, and whether the voice remains controlled or trembles."    
+      }
+    },
+    {
+      "sample_id": "video_0045_0011",
+      "video_file": "video_0045_0011.mp4",
+      "source": "《超级演说家》第一季",
+      "season": "1",
+      "episode": "5/10",
+      "speaker": "Yong Li",
+      "sentiment": "positive",
+      "utterance": "三个孩子我都特别喜欢",
+      "situation_card": {
+        "人物身份": "Yong Li is a mentor and senior host on the speech competition program. He is commenting on three young contestants whom he highly appreciates.",
+        "当前目标_利益": "He wants to express sincere recognition and affection toward the contestants, while showing the difficulty of making a competitive selection.",
+        "触发事件": "During the judging or contestant-selection stage, Yong Li is asked to evaluate several strong young participants. Faced with choosing among them, he emotionally states that he likes all three very much.",
+        "权力关系": "Mentor-to-contestant relationship. Yong Li holds decision-making authority in the competition, while also acting as a supportive senior figure.",
+        "标注提示": "The line is clearly positive, but may also contain hesitation or emotional conflict because he must choose among contestants he values. Observe whether tone and facial expression emphasize warmth, pride, reluctance, or encouragement."
+      }
+    },
+    {
+      "sample_id": "video_0027_0005",
+      "video_file": "video_0027_0005.mp4",
+      "source": "《活着》",
+      "season": "",
+      "episode": "",
+      "speaker": "You Ge",
+      "sentiment": "negative",
+      "utterance": "我是刚，来来来来",
+      "situation_card": {
+        "人物身份": "You Ge is portraying Xu Fugui, a wealthy young man from a landlord family who is addicted to gambling and living recklessly at this stage of the story.",
+        "当前目标_利益": "He wants to dominate the gambling table, maintain his momentum, and display confidence in front of others while continuing the game.",
+        "触发事件": "During an intense gambling session, Fugui becomes highly excited and loudly urges the game forward, showing impulsive confidence and emotional overinvestment.",
+        "权力关系": "Temporary competitive relationship among gamblers. Fugui attempts to assert psychological control through noise, confidence, and aggressive presence.",
+        "标注提示": "Although the line sounds energetic and forceful, the deeper emotional state may include recklessness, anxiety, addiction-driven excitement, or false confidence. Observe whether facial expression and tone suggest true control or unstable overconfidence."
+      }
+    },
+    {
+      "sample_id": "video_0051_0068",
+      "video_file": "video_0051_0068.mp4",
+      "source": "《我就是演员》第一季",
+      "season": "1",
+      "episode": "4",
+      "speaker": "Ziyi Zhang",
+      "sentiment": "negative",
+      "utterance": "我踏实了",
+      "situation_card": {
+        "人物身份": "Ziyi Zhang is portraying a divorced wife who has just completed the divorce procedure with her former husband. The two once shared an intimate marriage but are now emotionally exhausted.",
+        "当前目标_利益": "She wants to maintain dignity and emotional control while expressing that the painful uncertainty of the marriage has finally ended. She seeks closure, even at emotional cost.",
+        "触发事件": "After the couple receives their divorce certificates and says their final words outside the civil affairs office, the accumulated emotional tension reaches its endpoint, leading her to say that she finally feels settled.",
+        "权力关系": "Former spouses with equal formal status, but both still hold emotional influence over one another because of their shared history and unresolved attachment.",
+        "标注提示": "Although the wording suggests relief, the deeper emotion may include sadness, fatigue, disappointment, or suppressed love. Observe whether facial expression, pauses, and voice indicate true calmness or pain beneath composure."    
+      }
+    },
+    {
+      "sample_id": "video_0024_0048",
+      "video_file": "video_0024_0048.mp4",
+      "source": "《银河补习班》",
+      "season": "",
+      "episode": "",
+      "speaker": "Haowen Ma",
+      "sentiment": "positive",
+      "utterance": "他会是这个学校最出色的孩子。",
+      "situation_card": {
+        "人物身份": "Haowen Ma is the father of Ma Fei. He is speaking as a protective parent confronting school authorities who have labeled his son as a failing student.",
+        "当前目标_利益": "He wants to defend his son's dignity, reject the negative judgment imposed by the school, and publicly affirm the child's future potential.",
+        "触发事件": "During a school meeting where Ma Fei faces expulsion because of poor academic performance, school leaders dismiss him as hopeless. In response, Haowen Ma firmly declares his belief in his son.",
+        "权力关系": "Institution versus parent dynamic. The school holds formal authority, while Haowen Ma uses moral conviction and public confidence to challenge that authority.",
+        "标注提示": "The statement is strongly positive and supportive, but may also contain anger, defiance, and emotional urgency. Observe whether tone and facial expression emphasize encouragement, confrontation, or wounded pride."    
+      }
+    },
+    {
+      "sample_id": "video_0058_0010",
+      "video_file": "video_0058_0010.mp4",
+      "source": "《家有儿女》第一部",
+      "season": "1",
+      "episode": "47",
+      "speaker": "Liu Xing",
+      "sentiment": "positive",
+      "utterance": "看来你们俩现在的口令已经完全失效了",
+      "situation_card": {
+        "人物身份": "Liu Xing is the mischievous teenage son in the family. He is speaking to his parents, Xia Donghai and Liu Mei, who previously created household command rules to manage the children.",
+        "当前目标_利益": "He wants to mock the failure of his parents' control strategy, defend his own freedom in the moment, and gain a playful sense of victory.",
+        "触发事件": "His parents attempt to use their once-effective secret command phrase to stop his behavior, but Liu Xing no longer responds and openly points out that the method has lost its power.",
+        "权力关系": "Parent-child relationship in which the parents hold formal authority. However, Liu Xing temporarily gains psychological advantage by exposing the collapse of their authority tactic.",
+        "标注提示": "The line sounds humorous and confident, but may also contain teasing, rebellion, or suppressed frustration. Observe whether facial expression and tone emphasize playfulness, sarcasm, or open defiance."
+      }
+    },
+    {
+      "sample_id": "video_0025_0016",
+      "video_file": "video_0025_0016.mp4",
+      "source": "《唐人街探案2》",
+      "season": "",
+      "episode": "",
+      "speaker": "Tang Ren",
+      "sentiment": "positive",
+      "utterance": "五百万美刀啊，七叔的心愿了了，案子一破，你250我250了。",
+      "situation_card": {
+        "人物身份": "Tang Ren is Qin Feng's older partner and self-proclaimed detective companion. He is energetic, greedy, and often driven by money and quick success.",
+        "当前目标_利益": "He wants to persuade Qin Feng to help solve the case, while fantasizing about sharing the five-million-dollar reward and enjoying the benefits of success.",
+        "触发事件": "After learning that Uncle Seven has offered a huge reward for solving his grandson's murder case, Tang Ren becomes excited and immediately calculates how the prize money could be divided.",
+        "权力关系": "Partner relationship. Qin Feng has stronger reasoning ability, while Tang Ren often tries to lead through enthusiasm, persuasion, and emotional pressure.",
+        "标注提示": "The line is highly positive and excited on the surface, but may also reflect greed, impulsiveness, comic overconfidence, and self-interest. Observe whether tone and expression emphasize joy, desperation for money, or playful foolishness."
+      }
+    },
+    {
+      "sample_id": "video_0025_0010",
+      "video_file": "video_0025_0010.mp4",
+      "source": "《唐人街探案2》",
+      "season": "",
+      "episode": "",
+      "speaker": "Tang Ren",
+      "sentiment": "negative",
+      "utterance": "我们在这里一个打十个。",
+      "situation_card": {
+        "人物身份": "Tang Ren is Qin Feng's older partner and an impulsive, boastful amateur detective. He is speaking to Qin Feng shortly after meeting him in New York.",
+        "当前目标_利益": "He wants to impress Qin Feng, exaggerate his own status and strength in New York, and establish himself as the dominant guide in an unfamiliar environment.",
+        "触发事件": "While showing Qin Feng around the city and bragging about his influence in Chinatown, Tang Ren claims that they are strong enough to defeat many opponents.",
+        "权力关系": "Partner relationship. Qin Feng has stronger intelligence, but Tang Ren tries to gain temporary social authority through confidence, noise, and exaggerated self-presentation.",
+        "标注提示": "Although labeled negative, the line may express boastful excitement rather than hostility. Observe whether tone and facial expression indicate bravado, insecurity, comic overconfidence, or performative toughness."
+      }
+    },
+    {
+      "sample_id": "video_0048_0019",
+      "video_file": "video_0048_0019.mp4",
+      "source": "《家有儿女》第一部",
+      "season": "1",
+      "episode": "100",
+      "speaker": "Liu Mei",
+      "sentiment": "negative",
+      "utterance": "这，这是我们家第一个团圆年",
+      "situation_card": {
+        "人物身份": "Liu Mei is the mother of a blended family formed with Xia Donghai. She is speaking to her husband and three children during the family's New Year's Eve reunion dinner.",
+        "当前目标_利益": "She wants the family's first reunion New Year to feel complete, orderly, and meaningful. She also hopes to prove that the blended family has successfully become a real and harmonious household.",
+        "触发事件": "Before this moment, the holiday nearly fell apart because of family conflicts, children's demands, and accumulated household stress. After struggling to keep everything together, Liu Mei finally sees the whole family seated together at the dinner table.",
+        "权力关系": "Parent-child family relationship. Liu Mei and Xia Donghai hold parental authority, but the moment is shaped more by emotional responsibility than formal hierarchy.",
+        "标注提示": "Although the line expresses reunion and warmth, the facial expression may appear tense or unhappy because it can reflect relief after prolonged stress, emotional exhaustion, and fear that the celebration might fail. Observe whether the voice and face convey gratitude, pressure release, fatigue, or restrained tears."
+      }
+    },
+    {
+      "sample_id": "video_0048_0022",
+      "video_file": "video_0048_0022.mp4",
+      "source": "《家有儿女》第一部",
+      "season": "1",
+      "episode": "87",
+      "speaker": "Xia Donghai",
+      "sentiment": "positive",
+      "utterance": "你说这什么话，什么叫白娶了，那咱们俩不也得吃饭吗是不是",
+      "situation_card": {
+        "人物身份": "Xia Donghai is Liu Mei's husband and the father figure of the household. He is responding to Liu Mei during a family dispute about housework, unpaid labor, and appreciation within the home.",
+        "当前目标_利益": "He wants to calm Liu Mei's anger, reduce tension through humor and soft persuasion, and restore harmony without escalating the argument.",
+        "触发事件": "Liu Mei complains that her domestic labor has been taken for granted and says she has sacrificed too much for the family. In response, Xia Donghai offers a lighthearted defense to comfort her.",
+        "权力关系": "Married couple with generally equal status. Although both share authority in the family, Liu Mei holds moral advantage in this moment because of her grievances.",
+        "标注提示": "The line sounds positive and humorous, but may also contain nervous appeasement or avoidance of conflict. Observe whether tone and facial expression show warmth, embarrassment, playful reasoning, or pressure to smooth things over."
+      }
+    },
+    {
+      "sample_id": "aqgy5_0017_00043",
+      "video_file": "aqgy5_0017_00043.mp4",
+      "source": "《爱情公寓5》",
+      "season": "5",
+      "episode": "17",
+      "speaker": "Curry Jiang",
+      "sentiment": "positive",
+      "utterance": "这就是我梦想中的卧室，太棒了。",
+      "situation_card": {
+        "人物身份": "Curry Jiang is a close friend within the apartment group. She is reacting to Zhao Haitang's highly unconventional bedroom design while others around her are shocked or confused.",
+        "当前目标_利益": "She wants to express genuine excitement and admiration, because the room unexpectedly matches her own playful tastes and imagined ideal lifestyle.",
+        "触发事件": "Zhao Haitang reveals his exaggerated multi-function bedroom filled with unusual features, flashy decorations, and entertainment devices. While others dislike it, Curry feels instantly attracted to it.",
+        "权力关系": "Equal friendship relationship. Haitang controls the scene as the room owner and presenter, while Curry becomes the only enthusiastic supporter of his taste.",
+        "标注提示": "The line is strongly positive, but the intensity may come from surprise, exaggerated joy, or a sense of finding someone who shares her unusual preferences. Observe whether facial expression shows sincere delight, comic excitement, or emotional overreaction."
+      }
+    },
+    {
+      "sample_id": "video_0058_0009",
+      "video_file": "video_0058_0009.mp4",
+      "source": "《家有儿女》第一部",
+      "season": "1",
+      "episode": "44",
+      "speaker": "Xia Donghai",
+      "sentiment": "negative",
+      "utterance": "活该，大半夜的没事在那爬来爬去的，不困才怪呢",
+      "situation_card": {
+        "人物身份": "Xia Donghai is Liu Xing's father and the calm mediator of the family. He is speaking to Liu Xing during breakfast after a restless night.",
+        "当前目标_利益": "He wants to criticize Liu Xing's late-night behavior, explain the cause of his exhaustion, and teach him a practical lesson about sleep habits.",
+        "触发事件": "Liu Xing spent the night unable to sleep, moving around the house and disturbing others. The next morning he appears extremely tired and complains about feeling sleepy.",
+        "权力关系": "Parent-child relationship. Xia Donghai holds clear authority, while Liu Xing is in a weak position after causing trouble and suffering the consequences.",
+        "标注提示": "Although labeled negative, the line may carry teasing parental humor rather than real anger. Observe whether tone and facial expression show annoyance, playful scolding, concern, or satisfaction at proving a point."
+      }
+    },
+    {
+      "sample_id": "video_0045_0008",
+      "video_file": "video_0045_0008.mp4",
+      "source": "",
+      "season": "",
+      "episode": "",
+      "speaker": "",
+      "sentiment": "positive",
+      "utterance": "说的好可怜啊",
+      "situation_card": {
+        "人物身份": "",
+        "当前目标_利益": "",
+        "触发事件": "",
+        "权力关系": "",
+        "标注提示": ""
+      }
+    },
+    {
+      "sample_id": "video_0035_0027",
+      "video_file": "video_0035_0027.mp4",
+      "source": "《妖猫传》",
+      "season": "",
+      "episode": "",
+      "speaker": "Chun Qin",
+      "sentiment": "negative",
+      "utterance": "下令埋我的是大唐天子，我就和大唐没完没了",
+      "situation_card": {
+        "人物身份": "Chun Qin is the wife of Chen Yunqiao, but in this moment she is speaking while possessed by a vengeful spirit connected to the unjust death of Yang Guifei.",
+        "当前目标_利益": "She seeks to expose past betrayal, express deep resentment, and declare revenge against the imperial power responsible for the wrongful burial and death.",
+        "触发事件": "During the investigation of supernatural incidents in Chang'an, Chun Qin becomes possessed and voices the accumulated grievance tied to the emperor's order in the tragedy of Yang Guifei.",
+        "权力关系": "Commoner versus imperial authority. Although socially powerless in life, the possessed speaker gains symbolic power through fear, accusation, and supernatural presence.",
+        "标注提示": "The line is strongly negative and confrontational, but may also contain grief, betrayal, and historical injustice rather than simple anger. Observe whether facial expression and voice emphasize rage, sorrow, madness, or possessed detachment."
+      }
+    },
+    {
+      "sample_id": "video_0060_0013",
+      "video_file": "video_0060_0013.mp4",
+      "source": "《致我们终将逝去的青春》",
+      "season": "",
+      "episode": "",
+      "speaker": "Zheng Wei",
+      "sentiment": "positive",
+      "utterance": "老师，我们错了，下次不敢了",
+      "situation_card": {
+        "人物身份": "Zheng Wei is a lively and bold university freshman. She is speaking on behalf of her dorm roommates after they are caught violating dormitory rules.",
+        "当前目标_利益": "She wants to avoid punishment, calm the teacher's anger, and protect herself and her roommates through quick charm and playful apology.",
+        "触发事件": "Zheng Wei and her roommates secretly use prohibited electric cooking equipment in the dormitory. A teacher or dorm supervisor suddenly arrives for inspection.",
+        "权力关系": "Teacher-student relationship. The teacher holds disciplinary authority, while Zheng Wei tries to reduce that power through humor, confidence, and social skill.",
+        "标注提示": "Although labeled positive, the line is an apology on the surface and may contain nervousness, mischief, or strategic performance. Observe whether facial expression and tone show sincerity, playful pleading, embarrassment, or confidence."
+      }
+    },
+    {
+      "sample_id": "video_0056_0027",
+      "video_file": "video_0056_0027.mp4",
+      "source": "《人再囧途之泰囧》",
+      "season": "",
+      "episode": "",
+      "speaker": "Wang Bao",
+      "sentiment": "positive",
+      "utterance": "找不到了吧",
+      "situation_card": {
+        "人物身份": "Wang Bao is an overly enthusiastic travel companion who has been following Xu Lang throughout the journey in Thailand. He is cheerful, persistent, and often unintentionally disruptive.",
+        "当前目标_利益": "He wants to surprise Xu Lang, show that he successfully caught up again, and enjoy a playful moment after realizing Xu Lang tried to leave him behind.",
+        "触发事件": "Xu Lang believes he has finally escaped from Wang Bao and can continue alone. Just as he relaxes, Wang Bao suddenly appears in front of him and speaks with a teasing smile.",
+        "权力关系": "Travel-partner relationship with constant tension. Xu Lang tries to control the journey, but Wang Bao temporarily gains psychological advantage by unexpectedly reappearing.",
+        "标注提示": "The line is positive and playful on the surface, but may also contain teasing triumph, innocent pride, or subtle revenge. Observe whether facial expression and tone emphasize friendliness, mischief, or awareness of Xu Lang's frustration."
+      }
+    },
+    {
+      "sample_id": "video_0002_0024",
+      "video_file": "video_0002_0024.mp4",
+      "source": "《西虹市首富》",
+      "season": "",
+      "episode": "",
+      "speaker": "Hotel Manager",
+      "sentiment": "positive",
+      "utterance": "您实在是太精明了，一时间我竟无言以对。",
+      "situation_card": {
+        "人物身份": "The speaker is the manager of a luxury hotel in Xihong City. He is dealing professionally with Wang Duoyu, an extremely wealthy guest making unusual spending requests.",
+        "当前目标_利益": "He wants to maintain professionalism, satisfy an important customer, and verbally respond to Wang Duoyu's unconventional logic while preserving composure.",
+        "触发事件": "Wang Duoyu proposes absurd consumption plans and uses seemingly cost-saving arguments that actually lead to spending even more money. The manager becomes stunned by this irrational but effective reasoning.",
+        "权力关系": "Service-provider and customer relationship. The manager has institutional authority within the hotel, but Wang Duoyu holds overwhelming financial power and controls the interaction.",
+        "标注提示": "Although labeled positive, the line is likely ironic or professionally polite rather than sincere praise. Observe whether tone and facial expression suggest sarcasm, helpless admiration, confusion, or forced respect."
+      }
+    },
+    {
+      "sample_id": "video_0054_0104",
+      "video_file": "video_0054_0104.mp4",
+      "source": "《演技派》幕后采访",
+      "season": "",
+      "episode": "",
+      "speaker": "Yuwen Wang",
+      "sentiment": "negative",
+      "utterance": "然后我就有一种我想成为她的骄傲",
+      "situation_card": {
+        "人物身份": "Yuwen Wang is a young actress and contestant on the performance program. She is speaking in an interview about her mentor Zhang Jingchu, whom she deeply respects.",
+        "当前目标_利益": "She wants to express gratitude, emotional attachment, and her desire to meet her mentor's expectations through strong performances and personal growth.",
+        "触发事件": "After receiving guidance, trust, and praise from Zhang Jingchu during training or competition, Yuwen Wang reflects on the motivation this support created in her.",
+        "权力关系": "Mentor-student relationship. Zhang Jingchu holds professional authority and symbolic status, while Yuwen Wang seeks recognition and hopes to honor that trust.",
+        "标注提示": "Although labeled negative, the statement is emotionally warm and aspirational. Any sadness may come from pressure, vulnerability, or gratitude expressed through tears. Observe whether tone and facial expression show admiration, determination, emotional overwhelm, or fear of disappointing her mentor."
+      }
+    },
+    {
+      "sample_id": "video_0015_0031",
+      "video_file": "video_0015_0031.mp4",
+      "source": "《唐人街探案》",
+      "season": "",
+      "episode": "",
+      "speaker": "Tang Ren",
+      "sentiment": "positive",
+      "utterance": "这种桥段，在我们侦探推理届并不新鲜。",
+      "situation_card": {
+        "人物身份": "Tang Ren is Qin Feng's older detective partner who often presents himself as an experienced master investigator, despite relying more on instinct and confidence than logic.",
+        "当前目标_利益": "He wants to maintain status in front of Qin Feng, appear knowledgeable, and hide any confusion by acting as though the mystery is obvious to him.",
+        "触发事件": "While discussing the suspect's seemingly impossible escape method and the missing gold, Qin Feng begins a serious logical analysis. Tang Ren interrupts with a confident comment to assert experience.",
+        "权力关系": "Partner relationship. Qin Feng has stronger analytical authority, while Tang Ren competes for social authority through performance, humor, and exaggerated confidence.",
+        "标注提示": "Although labeled positive, the line may be boastful rather than genuinely upbeat. Observe whether tone and facial expression suggest bluffing, insecurity, comic pride, or playful rivalry with Qin Feng."
+      }
+    },
+    {
+      "sample_id": "video_0024_0113",
+      "video_file": "video_0024_0113.mp4",
+      "source": "《银河补习班》",
+      "season": "",
+      "episode": "",
+      "speaker": "Director Yan",
+      "sentiment": "negative",
+      "utterance": "你可不可以放弃报考飞行员？",
+      "situation_card": {
+        "人物身份": "Director Yan is the former school discipline director who once judged Ma Fei as a failing student. He is now speaking to the adult Ma Fei, who has become qualified to pursue a pilot or astronaut career.",
+        "当前目标_利益": "He wants to protect his past authority, educational reputation, and lifelong beliefs by discouraging Ma Fei from publicly succeeding in a field that would disprove his earlier judgment.",
+        "触发事件": "After learning that Ma Fei has the opportunity to become a pilot and represent major achievement, Director Yan privately meets him and asks him to give it up.",
+        "权力关系": "Former authority figure versus former student. Although Yan once held institutional power, Ma Fei now holds moral advantage and real future potential.",
+        "标注提示": "The line may sound calm or polite, but it can contain fear, selfishness, insecurity, and control. Observe whether tone and facial expression reveal concern, manipulation, shame, or desperation beneath the request."
+      }
+    },
+    {
+      "sample_id": "aqgy5_0020_00034",
+      "video_file": "aqgy5_0020_00034.mp4",
+      "source": "aqgy5",
+      "season": "5",
+      "episode": "20",
+      "speaker": "Curry",
+      "sentiment": "positive",
+      "utterance": "好浪漫原来他这么喜欢我。",
+      "situation_card": {
+        "人物身份": "Curry Jiang is a close friend within the apartment group. She is currently single and is interacting with Haitang Zhao and Zhao Kanhai at the bar.",
+        "当前目标_利益": "She is trying to understand the poem written for her and reacts with delight after hearing a romantic interpretation. Emotionally, she hopes to feel appreciated and valued.",
+        "触发事件": "Unable to read Zhao Kanhai's handwriting, Curry asks Haitang Zhao for help. Haitang improvises a passionate love poem on the spot, making her believe Zhao Kanhai has deep feelings for her.",
+        "权力关系": "Equal friendship relationship. Haitang temporarily controls the situation by interpreting the poem, while Curry becomes the emotional receiver of the message.",
+        "标注提示": "The line is strongly positive on the surface, expressing surprise and delight. Check whether facial expression and tone show genuine romantic excitement, innocence, or playful exaggeration."    
+      }
+    },
+    {
+      "sample_id": "video_0009_0006",
+      "video_file": "video_0009_0006.mp4",
+      "source": "《演技派》实景短剧《紫禁城里的小食光》",
+      "season": "",
+      "episode": "",
+      "speaker": "Jingxian Gege",
+      "sentiment": "positive",
+      "utterance": "我今天赢回了这么多金瓜子，你怎么不高兴啊？",
+      "situation_card": {
+        "人物身份": "Jingxian Gege is a lively young noblewoman in the palace. She is speaking to Chunshou, a palace servant and childhood companion with whom she shares a close bond.",
+        "当前目标_利益": "She wants to share her joy, receive Chunshou's approval, and enjoy a happy moment together without understanding his deeper worries.",
+        "触发事件": "After winning many gold melon seeds in a palace game, Jingxian excitedly brings her winnings to Chunshou, expecting him to celebrate with her. Instead, he reacts coldly and appears troubled.",
+        "权力关系": "Noblewoman and servant relationship with unequal social status. Although Jingxian holds formal privilege, Chunshou's emotional distance gives him temporary control of the interaction.",
+        "标注提示": "The line sounds cheerful and playful, but may also contain confusion, disappointment, or innocence confronted by emotional reality. Observe whether facial expression and tone emphasize joy, hurt feelings, curiosity, or naive sincerity."
+      }
+    },
+    {
+      "sample_id": "video_0010_0026",
+      "video_file": "video_0010_0026.mp4",
+      "source": "《小欢喜》",
+      "season": "",
+      "episode": "",
+      "speaker": "Song Qian",
+      "sentiment": "negative",
+      "utterance": "脸都不要了，还要什么面子",
+      "situation_card": {
+        "人物身份": "Song Qian is a strict single mother and the former wife of Qiao Weidong. She is speaking to him during a public argument after years of unresolved family tension.",
+        "当前目标_利益": "She wants to condemn Qiao Weidong's behavior, defend her dignity, and reassert boundaries regarding family matters and their daughter.",
+        "触发事件": "After Qiao Weidong behaves in a way that Song Qian sees as shameless, intrusive, or hypocritical, he attempts to justify himself or preserve appearances, provoking her sharp response.",
+        "权力关系": "Former spouses with equal formal status but long-term emotional conflict. Song Qian gains temporary dominance through moral accusation and verbal force.",
+        "标注提示": "The line is openly negative and contemptuous, but may also hide accumulated hurt, disappointment, and frustration from years of conflict. Observe whether tone and facial expression emphasize anger, sarcasm, wounded pride, or emotional exhaustion."
+      }
+    }
+  ]
+}
