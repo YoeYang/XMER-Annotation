@@ -192,6 +192,22 @@ def save_to_gsheet(sample: dict, answers: dict, annotator_id: str) -> bool:
     return True
 
 
+def load_progress_from_gsheet(annotator_id: str) -> set:
+    """从 Google Sheets 读取该标注者已完成的 sample_id 集合。"""
+    ws = get_worksheet()
+    if ws is None:
+        return set()
+    try:
+        records = ws.get_all_records()
+        return {
+            r["sample_id"]
+            for r in records
+            if r.get("annotator_id") == annotator_id and r.get("sample_id")
+        }
+    except Exception:
+        return set()
+
+
 # ============================================================
 # SECTION 4: Session state 初始化
 # ============================================================
@@ -268,9 +284,20 @@ def show_instructions():
         placeholder="例如：ZhangSan",
     )
     if st.button("开始标注 →", type="primary", disabled=not name.strip()):
-        st.session_state.annotator_id = name.strip()
+        annotator_id = name.strip()
+        st.session_state.annotator_id = annotator_id
+
+        # 从 Google Sheets 恢复已标注进度
+        with st.spinner("正在读取你的历史进度..."):
+            done_ids = load_progress_from_gsheet(annotator_id)
+
+        if done_ids:
+            st.session_state.local_annotations = {sid: {} for sid in done_ids}
+            st.info(f"检测到你已完成 {len(done_ids)} 条标注，将自动跳转到第一条未完成的样本。")
+
         st.session_state.page = "annotation"
-        st.session_state.current_idx = 0
+        st.session_state.current_idx = 0   # 路由后在 show_annotation 里修正
+        st.session_state.resume_needed = True
         st.rerun()
 
 
@@ -280,6 +307,18 @@ def show_instructions():
 
 def show_annotation(samples):
     total = len(samples)
+
+    # 恢复进度后自动跳到第一条未标注的样本
+    if st.session_state.get("resume_needed"):
+        st.session_state.resume_needed = False
+        done = st.session_state.local_annotations
+        for i, s in enumerate(samples):
+            if s["sample_id"] not in done:
+                st.session_state.current_idx = i
+                break
+        else:
+            st.session_state.current_idx = total - 1  # 全部完成时停在最后一条
+
     annotated = sum(
         1 for s in samples if s["sample_id"] in st.session_state.local_annotations
     )
