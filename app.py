@@ -279,41 +279,19 @@ init_state()
 # SECTION 5: 用户须知页面
 # ============================================================
 
+@st.cache_data
+def load_guide() -> str:
+    guide_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ANNOTATOR_GUIDE.md")
+    if os.path.exists(guide_path):
+        with open(guide_path, "r", encoding="utf-8") as f:
+            return f.read()
+    return "*(Annotator guide not found. Please contact the administrator.)*"
+
+
 def show_instructions():
-    st.title("XMER 跨模态情感标注系统")
+    st.title("XMER Annotation System")
     st.markdown("---")
-    st.markdown("""
-## 欢迎参加本次标注实验
-
-本实验旨在研究**跨模态情感冲突**现象——即说话人的声音情绪与面部表情情绪不一致的情形。
-你的标注数据将用于学术研究，请认真作答。
-
----
-
-## 标注流程
-
-每个样本分为 **三步** 完成，上方的视频与情景卡片在三步中始终可见：
-
-| 步骤 | 内容 | 说明 |
-|------|------|------|
-| **第一步** | 模态观察 | 分别观察面部、声音、语言三个通道的客观特征，并判断是否存在模态冲突 |
-| **第二步** | S-E 整体评估 | 以当事人视角，对情境做整体主观评估（滑块评分） |
-| **第三步** | CPM 动态评估 | 对五个认知评估维度逐一判断，并评估模态一致性 |
-
-完成三步后点击 **「保存并继续」** 提交，进入下一条。
-
----
-
-## 注意事项
-
-- **每个视频可反复播放**，建议至少看两遍（一遍关注声音，一遍关注画面）。
-- 情景卡片不提示答案，仅帮助你理解背景；**以你实际感知为准**。
-- 如确实无法判断，请选「不确定」或「无法判断」。
-- 标注过程中**请勿关闭页面**，三步全部完成并保存后进度才会记录。
-- 下次打开时输入相同 ID，系统会自动恢复进度。
-
----
-""")
+    st.markdown(load_guide())
     st.subheader("请输入你的标注者 ID 后开始")
     name = st.text_input(
         "姓名或 ID（用于区分不同标注者）",
