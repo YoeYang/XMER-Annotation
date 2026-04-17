@@ -218,7 +218,6 @@ def init_state():
         "annotator_id":       "",
         "current_idx":        0,
         "local_annotations":  {},
-        "field_visibility":   dict(SITUATION_CARD_FIELDS),
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -325,16 +324,7 @@ def show_annotation(samples):
 
     # --- 侧栏 ---
     with st.sidebar:
-        st.header("显示设置")
-        st.subheader("情景卡片字段")
-        for field in SITUATION_CARD_FIELDS:
-            st.session_state.field_visibility[field] = st.checkbox(
-                field,
-                value=st.session_state.field_visibility[field],
-                key=f"toggle_{field}",
-            )
-        st.divider()
-        st.markdown(f"标注者：**{st.session_state.annotator_id}**")
+        st.markdown(f"👤 标注者：**{st.session_state.annotator_id}**")
         st.caption(f"进度：{annotated} / {total}")
         st.divider()
         if st.button("← 返回须知页"):
@@ -385,9 +375,9 @@ def show_annotation(samples):
     with col_card:
         st.subheader("情景卡片")
         card = sample.get("situation_card", {})
-        visible = [f for f, v in st.session_state.field_visibility.items() if v]
+        visible = [f for f, v in SITUATION_CARD_FIELDS.items() if v]
         if not visible:
-            st.info("所有字段已隐藏，可在左侧侧栏中开启。")
+            st.info("情景卡片当前已全部隐藏（由管理员配置）。")
         for field in visible:
             if field in card:
                 st.markdown(f"**{field}**")
