@@ -13,7 +13,7 @@ This project is different from typical emotion labeling tasks. We are **not** as
 
 ## What We're Actually Annotating
 
-Every video clip shows a person expressing something — but the expression across their **face**, **voice**, and **words** doesn't always tell the same story.
+<!-- Every video clip shows a person expressing something — but the expression across their **face**, **voice**, and **words** doesn't always tell the same story.
 
 For example:
 - Someone says *"I'm fine"* in a flat, low voice while their brow is furrowed and eyes are averted.
@@ -21,8 +21,11 @@ For example:
 
 These **mismatches between modalities** are the heart of what we're studying. They reveal something genuinely interesting about how complex emotions work — and current AI systems struggle with them badly.
 
-Your job is to help us understand these mismatches, not just detect them.
+Your job is to help us understand these mismatches, not just detect them. -->
 
+Every video clip shows a person in the middle of an emotional moment — reacting to something that just happened, processing something they just heard, or expressing something they've been holding in.
+
+Your core task is **empathy-driven appraisal reconstruction**: put yourself in the speaker's shoes, and try to simulate the evaluations they are making about their situation. Not what *you* would feel in that situation — what *they* are likely feeling, given their goals, their relationships, and their circumstances as shown in the clip and context card.
 ---
 
 ## The Theoretical Framework (Plain Version)
@@ -83,7 +86,7 @@ This means:
 
 We are *not* asking you to annotate the millisecond-level neural process. We are asking you to look at the **output traces** left in face, voice, and language, and reason about which appraisal evaluations they reflect.
 
----
+<!-- ---
 
 ## Types of Modality Conflict You'll Encounter
 
@@ -103,7 +106,7 @@ The person is moving from one emotional state to another. Different modalities u
 
 **4. Mixed Emotion**
 Two genuinely different emotional states coexist — typically triggered by a single event that has conflicting implications.
-*Example: Pride mixed with guilt after succeeding at something through questionable means.*
+*Example: Pride mixed with guilt after succeeding at something through questionable means.* -->
 
 ---
 
