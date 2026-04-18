@@ -291,7 +291,7 @@ def load_guide() -> str:
 def show_instructions():
     st.title("XMER Annotation System")
     st.markdown("---")
-    st.markdown(load_guide())
+    st.markdown(load_guide(), unsafe_allow_html=True)
     st.subheader("请输入你的标注者 ID 后开始")
     name = st.text_input(
         "姓名或 ID（用于区分不同标注者）",
