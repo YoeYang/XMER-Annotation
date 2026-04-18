@@ -26,6 +26,7 @@ Your job is to help us understand these mismatches, not just detect them. -->
 Every video clip shows a person in the middle of an emotional moment — reacting to something that just happened, processing something they just heard, or expressing something they've been holding in.
 
 Your core task is **empathy-driven appraisal reconstruction**: put yourself in the speaker's shoes, and try to simulate the evaluations they are making about their situation. Not what *you* would feel in that situation — what *they* are likely feeling, given their goals, their relationships, and their circumstances as shown in the clip and context card.
+
 ---
 
 ## The Theoretical Framework (Plain Version)
