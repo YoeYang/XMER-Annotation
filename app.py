@@ -419,6 +419,14 @@ def show_annotation(samples):
             st.session_state.page = "instructions"
             st.rerun()
 
+    # 当前样本（必须在导航按钮之前定义，按钮里需要用到 sid/existing）
+    sample = samples[st.session_state.current_idx]
+    sid = sample["sample_id"]
+    existing = st.session_state.local_annotations.get(sid, {})
+
+    # 把已保存答案预填入 widget session_state，保证回看时答案留存
+    restore_widget_state(sid, existing)
+
     # 顶部进度 + 样本导航
     st.title("XMER 跨模态情感标注")
     st.progress(annotated / total if total else 0,
@@ -427,7 +435,6 @@ def show_annotation(samples):
     col_prev, col_info, col_next = st.columns([1, 3, 1])
     with col_prev:
         if st.button("← 上一条", disabled=st.session_state.current_idx == 0):
-            # 离开前自动存草稿，确保切换样本时答案不丢失
             st.session_state.local_annotations[sid] = collect_answers(sid, existing)
             st.session_state.current_idx -= 1
             st.rerun()
@@ -439,19 +446,9 @@ def show_annotation(samples):
         )
     with col_next:
         if st.button("下一条 →", disabled=st.session_state.current_idx == total - 1):
-            # 离开前自动存草稿
             st.session_state.local_annotations[sid] = collect_answers(sid, existing)
             st.session_state.current_idx += 1
             st.rerun()
-
-    st.divider()
-
-    sample = samples[st.session_state.current_idx]
-    sid = sample["sample_id"]
-    existing = st.session_state.local_annotations.get(sid, {})
-
-    # 把已保存答案预填入 widget session_state，保证回看时答案留存
-    restore_widget_state(sid, existing)
 
     # ── 上方固定区域：视频 + 情景卡片 ──────────────────
     col_video, col_card = st.columns([1, 1], gap="large")
