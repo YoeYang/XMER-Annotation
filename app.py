@@ -318,14 +318,22 @@ def show_instructions():
 # ============================================================
 
 def _radio(label, options, key, existing, hide_label=False):
-    """带回填的 radio。hide_label=True 时隐藏 radio 自带标签（避免与上方 markdown 重复）。"""
-    default = None
-    saved = existing.get(key) or st.session_state.get(key)
-    if saved in options:
-        default = options.index(saved)
+    """带回填的 radio。session_state 已由 restore_widget_state() 预填，直接渲染即可。"""
     lv = "collapsed" if hide_label else "visible"
-    return st.radio(label, options, index=default, horizontal=True,
+    return st.radio(label, options, index=None, horizontal=True,
                     key=key, label_visibility=lv)
+
+
+def restore_widget_state(sid, existing):
+    """把已保存答案写入 session_state widget key，仅在该 key 尚未被用户交互设置时写入。
+    data key（如 face_嘴角）→ widget key（如 face_嘴角_sampleA）。
+    """
+    for data_key, value in existing.items():
+        if value is None:
+            continue
+        widget_key = f"{data_key}_{sid}"
+        if widget_key not in st.session_state:
+            st.session_state[widget_key] = value
 
 
 def collect_answers(sid, existing):
@@ -419,6 +427,8 @@ def show_annotation(samples):
     col_prev, col_info, col_next = st.columns([1, 3, 1])
     with col_prev:
         if st.button("← 上一条", disabled=st.session_state.current_idx == 0):
+            # 离开前自动存草稿，确保切换样本时答案不丢失
+            st.session_state.local_annotations[sid] = collect_answers(sid, existing)
             st.session_state.current_idx -= 1
             st.rerun()
     with col_info:
@@ -429,6 +439,8 @@ def show_annotation(samples):
         )
     with col_next:
         if st.button("下一条 →", disabled=st.session_state.current_idx == total - 1):
+            # 离开前自动存草稿
+            st.session_state.local_annotations[sid] = collect_answers(sid, existing)
             st.session_state.current_idx += 1
             st.rerun()
 
@@ -437,6 +449,9 @@ def show_annotation(samples):
     sample = samples[st.session_state.current_idx]
     sid = sample["sample_id"]
     existing = st.session_state.local_annotations.get(sid, {})
+
+    # 把已保存答案预填入 widget session_state，保证回看时答案留存
+    restore_widget_state(sid, existing)
 
     # ── 上方固定区域：视频 + 情景卡片 ──────────────────
     col_video, col_card = st.columns([1, 1], gap="large")
