@@ -614,6 +614,7 @@ def show_annotation(samples):
     with nav_left:
         if step > 1:
             if st.button("← 上一步"):
+                st.session_state.local_annotations[sid] = collect_answers(sid, existing)
                 st.session_state.annotation_step -= 1
                 st.rerun()
     with nav_right:
@@ -622,6 +623,9 @@ def show_annotation(samples):
                 if missing:
                     st.error("请完成所有必填项后再继续：\n- " + "\n- ".join(missing))
                 else:
+                    # 关键：把当前步骤答案合并存入 local_annotations
+                    # 确保切步骤后 session_state 清空时 existing 仍有完整记录
+                    st.session_state.local_annotations[sid] = collect_answers(sid, existing)
                     st.session_state.annotation_step += 1
                     st.rerun()
         else:
