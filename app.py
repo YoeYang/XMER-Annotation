@@ -267,6 +267,8 @@ def init_state():
         "annotator_id":      "",
         "current_idx":       0,
         "local_annotations": {},
+        "annotation_step":   1,       # 当前标注步骤 1/2/3
+        "_last_sample_idx":  -1,      # 用于检测样本切换，自动重置步骤
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -315,12 +317,66 @@ def show_instructions():
 # SECTION 6: 标注主页面
 # ============================================================
 
-def radio(label, options, key, existing):
-    """带回填的 radio，不显示默认选中（index=None 首次），回填时恢复原答案。"""
+def _radio(label, options, key, existing, hide_label=False):
+    """带回填的 radio。hide_label=True 时隐藏 radio 自带标签（避免与上方 markdown 重复）。"""
     default = None
-    if key in existing and existing[key] in options:
-        default = options.index(existing[key])
-    return st.radio(label, options, index=default, horizontal=True, key=key)
+    saved = existing.get(key) or st.session_state.get(key)
+    if saved in options:
+        default = options.index(saved)
+    lv = "collapsed" if hide_label else "visible"
+    return st.radio(label, options, index=default, horizontal=True,
+                    key=key, label_visibility=lv)
+
+
+def collect_answers(sid, existing):
+    """从 session_state 和已保存答案中收集所有字段值。"""
+    a = {}
+    for k in PART1_FACE:
+        a[f"face_{k}"] = st.session_state.get(f"face_{k}_{sid}") or existing.get(f"face_{k}")
+    for k in PART1_VOICE:
+        a[f"voice_{k}"] = st.session_state.get(f"voice_{k}_{sid}") or existing.get(f"voice_{k}")
+    for k in PART1_LANGUAGE:
+        a[f"lang_{k}"] = st.session_state.get(f"lang_{k}_{sid}") or existing.get(f"lang_{k}")
+    a["conflict"] = st.session_state.get(f"conflict_{sid}", existing.get("conflict", []))
+    for s in PART2_SLIDERS:
+        wk = f"{s['key']}_{sid}"
+        a[s["key"]] = st.session_state.get(wk) if st.session_state.get(wk) is not None \
+                      else existing.get(s["key"], (s["min_val"] + s["max_val"]) // 2)
+    a["agency"] = st.session_state.get(f"agency_{sid}") or existing.get("agency")
+    for q in PART3_QUESTIONS:
+        k = q["key"]
+        a[f"p3_{k}"]  = st.session_state.get(f"p3_{k}_{sid}")  or existing.get(f"p3_{k}")
+        a[f"p3_{k}1"] = st.session_state.get(f"p3_{k}1_{sid}") or existing.get(f"p3_{k}1")
+    a["notes"] = st.session_state.get(f"notes_{sid}", existing.get("notes", ""))
+    return a
+
+
+def validate_step(answers, step):
+    """返回当前步骤未填写的必填项列表。"""
+    missing = []
+    if step == 1:
+        for k in PART1_FACE:
+            if not answers.get(f"face_{k}"):
+                missing.append(f"Face · {k}")
+        for k in PART1_VOICE:
+            if not answers.get(f"voice_{k}"):
+                missing.append(f"Voice · {k}")
+        for k in PART1_LANGUAGE:
+            if not answers.get(f"lang_{k}"):
+                missing.append(f"Language · {k}")
+        if not answers.get("conflict"):
+            missing.append("冲突判断（至少选一项）")
+    elif step == 2:
+        if not answers.get("agency"):
+            missing.append("Q5 Agency")
+    elif step == 3:
+        for q in PART3_QUESTIONS:
+            k = q["key"]
+            if not answers.get(f"p3_{k}"):
+                missing.append(f"□ {k} 主判断")
+            if not answers.get(f"p3_{k}1"):
+                missing.append(f"□ {k}1 模态一致性")
+    return missing
 
 
 def show_annotation(samples):
@@ -337,13 +393,19 @@ def show_annotation(samples):
         else:
             st.session_state.current_idx = total - 1
 
+    # 检测样本切换 → 重置到第一步
+    if st.session_state._last_sample_idx != st.session_state.current_idx:
+        st.session_state.annotation_step = 1
+        st.session_state._last_sample_idx = st.session_state.current_idx
+
     annotated = sum(1 for s in samples
                     if s["sample_id"] in st.session_state.local_annotations)
+    step = st.session_state.annotation_step
 
     # 侧栏
     with st.sidebar:
         st.markdown(f"👤 标注者：**{st.session_state.annotator_id}**")
-        st.caption(f"进度：{annotated} / {total}")
+        st.caption(f"样本进度：{annotated} / {total}")
         st.divider()
         if st.button("← 返回须知页"):
             st.session_state.page = "instructions"
@@ -352,7 +414,7 @@ def show_annotation(samples):
     # 顶部进度 + 样本导航
     st.title("XMER 跨模态情感标注")
     st.progress(annotated / total if total else 0,
-                text=f"当前进度：{annotated} / {total} 已完成")
+                text=f"样本进度：{annotated} / {total} 已完成")
 
     col_prev, col_info, col_next = st.columns([1, 3, 1])
     with col_prev:
@@ -404,135 +466,130 @@ def show_annotation(samples):
 
     st.divider()
 
-    # ── 三步标注（Tabs） ────────────────────────────────
-    answers = dict(existing)  # 预填已保存答案
+    # ── 步骤指示器 ──────────────────────────────────────
+    STEP_NAMES = ["第一步：模态观察", "第二步：S-E 整体评估", "第三步：CPM 动态评估"]
+    step_cols = st.columns(3)
+    for i, name in enumerate(STEP_NAMES):
+        with step_cols[i]:
+            if i + 1 == step:
+                st.markdown(
+                    f"<div style='text-align:center;background:#1f77b4;color:white;"
+                    f"padding:6px;border-radius:6px;font-weight:bold;'>▶ {name}</div>",
+                    unsafe_allow_html=True)
+            elif i + 1 < step:
+                st.markdown(
+                    f"<div style='text-align:center;background:#d4edda;color:#155724;"
+                    f"padding:6px;border-radius:6px;'>✓ {name}</div>",
+                    unsafe_allow_html=True)
+            else:
+                st.markdown(
+                    f"<div style='text-align:center;background:#e9ecef;color:#6c757d;"
+                    f"padding:6px;border-radius:6px;'>{name}</div>",
+                    unsafe_allow_html=True)
+    st.markdown("")
 
-    tab1, tab2, tab3 = st.tabs([
-        "第一步：模态观察",
-        "第二步：S-E 整体评估",
-        "第三步：CPM 动态评估",
-    ])
-
-    # ── Tab 1：模态观察 ─────────────────────────────────
-    with tab1:
+    # ── Step 1：模态观察 ────────────────────────────────
+    if step == 1:
         st.markdown("### 👁 Face —— 面部观察")
         cols = st.columns(2)
         for i, (feature, opts) in enumerate(PART1_FACE.items()):
             with cols[i % 2]:
-                key = f"face_{feature}_{sid}"
-                val = radio(f"**{feature}**", opts, key, existing)
-                answers[f"face_{feature}"] = val
+                _radio(f"**{feature}**", opts, f"face_{feature}_{sid}", existing)
 
         st.markdown("### 🔊 Voice —— 声音观察")
         cols = st.columns(2)
         for i, (feature, opts) in enumerate(PART1_VOICE.items()):
             with cols[i % 2]:
-                key = f"voice_{feature}_{sid}"
-                val = radio(f"**{feature}**", opts, key, existing)
-                answers[f"voice_{feature}"] = val
+                _radio(f"**{feature}**", opts, f"voice_{feature}_{sid}", existing)
 
         st.markdown("### 💬 Language —— 语言观察")
         cols = st.columns(2)
         for i, (feature, opts) in enumerate(PART1_LANGUAGE.items()):
             with cols[i % 2]:
-                key = f"lang_{feature}_{sid}"
-                val = radio(f"**{feature}**", opts, key, existing)
-                answers[f"lang_{feature}"] = val
+                _radio(f"**{feature}**", opts, f"lang_{feature}_{sid}", existing)
 
         st.markdown("### ⚡ 冲突判断（可多选）")
         st.caption("你认为以上三个模态之间存在不一致吗？")
-        default_conflict = existing.get("conflict", [])
-        answers["conflict"] = st.multiselect(
-            "选择存在冲突的模态对",
-            options=PART1_CONFLICT_OPTIONS,
-            default=default_conflict,
-            key=f"conflict_{sid}",
-        )
+        st.multiselect("选择存在冲突的模态对", options=PART1_CONFLICT_OPTIONS,
+                       default=existing.get("conflict", []), key=f"conflict_{sid}")
 
-    # ── Tab 2：S-E 整体静态评估 ─────────────────────────
-    with tab2:
+    # ── Step 2：S-E 整体评估 ────────────────────────────
+    elif step == 2:
         st.markdown("以**视频中当事人的视角**，结合情景卡片信息，回答以下问题：")
         st.markdown("")
-
         for slider in PART2_SLIDERS:
             k = slider["key"]
-            default_val = existing.get(k, (slider["min_val"] + slider["max_val"]) // 2)
+            saved_val = existing.get(k, (slider["min_val"] + slider["max_val"]) // 2)
             st.markdown(f"**{slider['label']}**")
             col_l, col_s, col_r = st.columns([2, 5, 2])
             with col_l:
                 st.caption(slider["min_label"])
             with col_s:
-                val = st.slider(
-                    label=" ",
-                    min_value=slider["min_val"],
-                    max_value=slider["max_val"],
-                    value=int(default_val),
-                    step=1,
-                    key=f"{k}_{sid}",
-                    label_visibility="collapsed",
-                )
+                st.slider(" ", min_value=slider["min_val"], max_value=slider["max_val"],
+                          value=int(saved_val), step=1,
+                          key=f"{k}_{sid}", label_visibility="collapsed")
             with col_r:
                 st.caption(slider["max_label"])
-            answers[k] = val
             st.markdown("")
 
         st.markdown("**Q5  TA 认为这件事主要是谁造成的？（Agency）**")
-        answers["agency"] = radio(
-            "Agency",
-            PART2_AGENCY_OPTIONS,
-            f"agency_{sid}",
-            existing,
-        )
+        _radio("Agency", PART2_AGENCY_OPTIONS, f"agency_{sid}", existing, hide_label=True)
 
-    # ── Tab 3：CPM 动态评估 ─────────────────────────────
-    with tab3:
+    # ── Step 3：CPM 动态评估 ────────────────────────────
+    elif step == 3:
         st.markdown("根据你的直觉回答以下五个问题，每题完成后评估三个模态的一致性：")
         st.markdown("")
-
         for q in PART3_QUESTIONS:
             k = q["key"]
             st.markdown(f"**{q['label']}**")
-            answers[f"p3_{k}"] = radio(
-                q["label"],
-                q["options"],
-                f"p3_{k}_{sid}",
-                existing,
-            )
-            answers[f"p3_{k}1"] = radio(
-                f"↳ {k}1  你觉得面部、语调、说话内容三个模态都一致地反映了你上面的判断吗？",
-                PART3_CONSISTENCY_OPTIONS,
-                f"p3_{k}1_{sid}",
-                existing,
-            )
+            _radio(q["label"], q["options"], f"p3_{k}_{sid}", existing, hide_label=True)
+            st.markdown(f"↳ **{k}1**  你觉得面部、语调、说话内容三个模态都一致地反映了你上面的判断吗？")
+            _radio(f"{k}1一致性", PART3_CONSISTENCY_OPTIONS,
+                   f"p3_{k}1_{sid}", existing, hide_label=True)
             st.markdown("---")
 
-        answers["notes"] = st.text_area(
-            "备注（可选）",
-            value=existing.get("notes", ""),
-            height=80,
-            placeholder="如有疑问或特殊说明，请在此填写",
-            key=f"notes_{sid}",
-        )
+        st.text_area("备注（可选）", value=existing.get("notes", ""), height=80,
+                     placeholder="如有疑问或特殊说明，请在此填写", key=f"notes_{sid}")
 
-        st.markdown("")
-        col_btn, col_msg = st.columns([1, 3])
-        with col_btn:
-            if st.button("保存并继续 ✓", type="primary", key=f"save_{sid}"):
-                st.session_state.local_annotations[sid] = answers
-                ok = save_to_gsheet(sample, answers, st.session_state.annotator_id)
-                if ok:
-                    st.success("已保存到 Google Sheets ✓")
+    # ── 底部导航按钮 ────────────────────────────────────
+    st.markdown("")
+    answers = collect_answers(sid, existing)
+    missing = validate_step(answers, step)
+
+    nav_left, nav_right = st.columns([1, 1])
+    with nav_left:
+        if step > 1:
+            if st.button("← 上一步"):
+                st.session_state.annotation_step -= 1
+                st.rerun()
+    with nav_right:
+        if step < 3:
+            if st.button("下一步 →", type="primary"):
+                if missing:
+                    st.error("请完成所有必填项后再继续：\n- " + "\n- ".join(missing))
                 else:
-                    st.warning("Google Sheets 未连接，仅保存在本地（页面关闭后丢失）")
-                if st.session_state.current_idx < total - 1:
-                    st.session_state.current_idx += 1
+                    st.session_state.annotation_step += 1
                     st.rerun()
+        else:
+            if st.button("保存并继续 ✓", type="primary", key=f"save_{sid}"):
+                if missing:
+                    st.error("请完成所有必填项后再提交：\n- " + "\n- ".join(missing))
                 else:
-                    st.balloons()
-                    st.success("🎉 本 batch 所有样本已标注完成！感谢你的参与。")
-        with col_msg:
-            if sid in st.session_state.local_annotations:
-                st.info("该样本已标注，可修改后重新保存。")
+                    st.session_state.local_annotations[sid] = answers
+                    ok = save_to_gsheet(sample, answers, st.session_state.annotator_id)
+                    if ok:
+                        st.success("已保存到 Google Sheets ✓")
+                    else:
+                        st.warning("Google Sheets 未连接，仅保存在本地（页面关闭后丢失）")
+                    if st.session_state.current_idx < total - 1:
+                        st.session_state.current_idx += 1
+                        st.rerun()
+                    else:
+                        st.balloons()
+                        st.success("🎉 本 batch 所有样本已标注完成！感谢你的参与。")
+
+    if sid in st.session_state.local_annotations:
+        st.caption("该样本已标注，可修改后重新保存。")
 
 
 # ============================================================
