@@ -245,16 +245,58 @@ def save_to_gsheet(sample: dict, answers: dict, annotator_id: str) -> bool:
     return True
 
 
-def load_progress_from_gsheet(annotator_id: str) -> set:
+def load_progress_from_gsheet(annotator_id: str) -> dict:
+    """从 Google Sheets 加载该标注者的所有历史答案。
+    同一 sample_id 有多条记录时取最后一条（时间最晚）。
+    返回 {sample_id: {data_key: value, ...}}。
+    """
     ws = get_worksheet()
     if ws is None:
-        return set()
+        return {}
     try:
         records = ws.get_all_records()
-        return {r["sample_id"] for r in records
-                if r.get("annotator_id") == annotator_id and r.get("sample_id")}
+        # 只保留当前标注者的记录，遍历顺序即时间顺序，后面的覆盖前面的
+        result = {}
+        for r in records:
+            if r.get("annotator_id") != annotator_id or not r.get("sample_id"):
+                continue
+            sid = r["sample_id"]
+            answers = {}
+            # Part 1 - Face / Voice / Language
+            for k in PART1_FACE:
+                if r.get(f"face_{k}"):
+                    answers[f"face_{k}"] = r[f"face_{k}"]
+            for k in PART1_VOICE:
+                if r.get(f"voice_{k}"):
+                    answers[f"voice_{k}"] = r[f"voice_{k}"]
+            for k in PART1_LANGUAGE:
+                if r.get(f"lang_{k}"):
+                    answers[f"lang_{k}"] = r[f"lang_{k}"]
+            # conflict 存为逗号分隔字符串，还原为 list
+            if r.get("conflict"):
+                answers["conflict"] = [c.strip() for c in r["conflict"].split(",") if c.strip()]
+            # Part 2
+            for s in PART2_SLIDERS:
+                if r.get(s["key"]) != "":
+                    try:
+                        answers[s["key"]] = int(r[s["key"]])
+                    except (ValueError, TypeError):
+                        pass
+            if r.get("agency"):
+                answers["agency"] = r["agency"]
+            # Part 3
+            for q in PART3_QUESTIONS:
+                k = q["key"]
+                if r.get(f"p3_{k}"):
+                    answers[f"p3_{k}"] = r[f"p3_{k}"]
+                if r.get(f"p3_{k}1"):
+                    answers[f"p3_{k}1"] = r[f"p3_{k}1"]
+            if r.get("notes"):
+                answers["notes"] = r["notes"]
+            result[sid] = answers
+        return result
     except Exception:
-        return set()
+        return {}
 
 
 # ============================================================
@@ -304,9 +346,9 @@ def show_instructions():
         annotator_id = name.strip()
         st.session_state.annotator_id = annotator_id
         with st.spinner("正在读取你的历史进度..."):
-            done_ids = load_progress_from_gsheet(annotator_id)
-        if done_ids:
-            st.session_state.local_annotations = {sid: {} for sid in done_ids}
+            history = load_progress_from_gsheet(annotator_id)
+        if history:
+            st.session_state.local_annotations = history
         st.session_state.page = "annotation"
         st.session_state.current_idx = 0
         st.session_state.resume_needed = True
