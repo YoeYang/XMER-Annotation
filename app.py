@@ -60,31 +60,31 @@ PART1_CONFLICT_OPTIONS = [
 PART2_SLIDERS = [
     {
         "key": "pleasantness",
-        "label": "Q1  这件事对 TA 来说是愉快的吗？（Pleasantness）",
+        "label": "Q1  这件事对 TA 来说是愉快的吗？（Pleasantness）[Hint：以说话者的视角评估这件触发TA情感体验的事情]",
         "min_val": -3, "max_val": 3,
         "min_label": "-3 非常不愉快", "max_label": "+3 非常愉快",
     },
     {
         "key": "certainty",
-        "label": "Q2  TA 对正在发生的事情清楚吗，知道结果会怎样吗？（Certainty）",
+        "label": "Q2  TA 对正在发生的事情清楚吗，知道结果会怎样吗？（Certainty）[Hint：以说话者的视角评估对“这件触发TA情感体验的事情”的确定程度，包括其是如何发生的以及未来会怎样]",
         "min_val": -3, "max_val": 3,
         "min_label": "-3 完全不确定", "max_label": "+3 非常确定",
     },
     {
         "key": "attentional_activity",
-        "label": "Q3  TA 想继续关注、深入了解这件事吗？（Attentional Activity）",
+        "label": "Q3  TA 想继续关注、深入了解这件事吗？（Attentional Activity）[Hint：评估说话者对“这件触发TA情感体验的事情”是被吸引还是排斥]",
         "min_val": -3, "max_val": 3,
         "min_label": "-3 想回避", "max_label": "+3 高度投入",
     },
     {
         "key": "anticipated_effort",
-        "label": "Q4  TA 觉得对于发生的事，需要付出很大努力吗？（Anticipated Effort）",
+        "label": "Q4  TA 觉得对于发生的事，需要付出很大努力吗？（Anticipated Effort）[Hint：评估说话者预期需要投入多少精力去应对“这件触发TA情感体验的事情”]",
         "min_val": 0, "max_val": 3,
         "min_label": "0 不需要努力", "max_label": "+3 需要极大努力",
     },
     {
         "key": "situational_control",
-        "label": "Q6  TA 觉得自己能控制、改变这个局面吗？（Situational Control）",
+        "label": "Q6  TA 觉得自己能控制、改变这个局面吗？（Situational Control）[Hint：评估说话者对“这件触发TA情感体验的事情”的掌控感]",
         "min_val": -3, "max_val": 3,
         "min_label": "-3 完全无能为力", "max_label": "+3 完全掌控",
     },
@@ -101,26 +101,31 @@ PART3_QUESTIONS = [
             "没有，TA 显得漠然 / 觉得与自己无关",
             "无法判断",
         ],
+        "hint1": "现在分别看 face、voice、language 三个模态：它们是否一致地指向同一个方向（都支持"在意"或都支持"不在意"）？还是某个模态给出了相反的信号？",
     },
     {
         "key": "B",
         "label": "□ B  TA 觉得这件事是好事还是坏事，本能上喜欢还是排斥？",
         "options": ["本能喜欢 / 好事", "本能排斥 / 坏事", "混合 / 无法判断"],
+        "hint1": "现在分别看 face、voice、language 三个模态：它们是否一致地指向同一方向（都显示"本能喜欢"或都显示"本能排斥"）？还是某个模态给出了相反的信号？",
     },
     {
         "key": "C",
         "label": "□ C  TA 觉得这件事对自己的目标是有利还是有害？",
         "options": ["有利 / 朝着目标前进", "有害 / 阻碍目标实现", "混合 / 无法判断"],
+        "hint1": "现在分别看 face、voice、language 三个模态：它们是否一致地指向同一方向（都显示"有利"或都显示"有害"）？还是某个模态给出了相反的信号？",
     },
     {
         "key": "D",
         "label": "□ D  TA 觉得自己有能力应对这件事吗？",
         "options": ["有能力，感到掌控", "没有能力，感到无力", "混合 / 无法判断"],
+        "hint1": "现在分别看 face、voice、language 三个模态：它们是否一致地指向同一方向（都显示"有能力掌控"或都显示"感到无力"）？还是某个模态给出了相反的信号？",
     },
     {
         "key": "E",
         "label": "□ E  TA 觉得这件事在道德上、社会规范上是否合适？",
         "options": ["合适 / 符合规范", "不合适 / 违背规范", "这个维度在此情境中不适用", "无法判断"],
+        "hint1": "现在分别看 face、voice、language 三个模态：它们是否一致地指向同一方向（都显示"合适/符合规范"或都显示"不合适/违背规范"）？还是某个模态给出了相反的信号？",
     },
 ]
 PART3_CONSISTENCY_OPTIONS = [
@@ -563,7 +568,7 @@ def show_annotation(samples):
                 _radio(f"**{feature}**", opts, f"lang_{feature}_{sid}", existing)
 
         st.markdown("### ⚡ 冲突判断（可多选）")
-        st.caption("你认为以上三个模态之间存在不一致吗？")
+        st.caption("你认为以上三个模态之间存在不一致吗？[Hint:冲突指'某两个模态的情感方向相反或明显不一致'（例如 face 显示愉悦但 voice 低沉颤抖）]")
         st.multiselect("选择存在冲突的模态对", options=PART1_CONFLICT_OPTIONS,
                        default=existing.get("conflict", []), key=f"conflict_{sid}")
 
@@ -597,7 +602,11 @@ def show_annotation(samples):
             k = q["key"]
             st.markdown(f"**{q['label']}**")
             _radio(q["label"], q["options"], f"p3_{k}_{sid}", existing, hide_label=True)
-            st.markdown(f"↳ **{k}1**  你觉得面部、语调、说话内容三个模态都一致地反映了你上面的判断吗？")
+            st.markdown(
+                f"<p style='color:#888;font-size:0.875rem;margin:4px 0 2px 0;'>"
+                f"↳ <b>{k}1</b> &nbsp; {q['hint1']}</p>",
+                unsafe_allow_html=True,
+            )
             _radio(f"{k}1一致性", PART3_CONSISTENCY_OPTIONS,
                    f"p3_{k}1_{sid}", existing, hide_label=True)
             st.markdown("---")
