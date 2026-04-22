@@ -579,7 +579,19 @@ def show_annotation(samples):
         for slider in PART2_SLIDERS:
             k = slider["key"]
             saved_val = existing.get(k, (slider["min_val"] + slider["max_val"]) // 2)
-            st.markdown(f"**{slider['label']}**")
+            # 把 [Hint：...] 拆出来用灰色小字渲染，主题问题保持正常粗体
+            raw_label = slider["label"]
+            if "[Hint" in raw_label:
+                main_q, hint_part = raw_label.split("[Hint", 1)
+                hint_text = hint_part.rstrip("]").lstrip("：:").strip()
+                st.markdown(f"**{main_q.strip()}**")
+                st.markdown(
+                    f"<p style='color:#888;font-size:0.875rem;margin:-4px 0 4px 0;'>"
+                    f"Hint：{hint_text}</p>",
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.markdown(f"**{raw_label}**")
             col_l, col_s, col_r = st.columns([2, 5, 2])
             with col_l:
                 st.caption(slider["min_label"])
@@ -602,11 +614,7 @@ def show_annotation(samples):
             k = q["key"]
             st.markdown(f"**{q['label']}**")
             _radio(q["label"], q["options"], f"p3_{k}_{sid}", existing, hide_label=True)
-            st.markdown(
-                f"<p style='color:#888;font-size:0.875rem;margin:4px 0 2px 0;'>"
-                f"↳ <b>{k}1</b> &nbsp; {q['hint1']}</p>",
-                unsafe_allow_html=True,
-            )
+            st.markdown(f"↳ **{k}1**　{q['hint1']}")
             _radio(f"{k}1一致性", PART3_CONSISTENCY_OPTIONS,
                    f"p3_{k}1_{sid}", existing, hide_label=True)
             st.markdown("---")
