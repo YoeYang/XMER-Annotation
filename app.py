@@ -568,7 +568,12 @@ def show_annotation(samples):
                 _radio(f"**{feature}**", opts, f"lang_{feature}_{sid}", existing)
 
         st.markdown("### ⚡ 冲突判断（可多选）")
-        st.caption("你认为以上三个模态之间存在不一致吗？[Hint:冲突指'某两个模态的情感方向相反或明显不一致'（例如 face 显示愉悦但 voice 低沉颤抖）]")
+        st.markdown("你认为以上三个模态之间存在不一致吗？")
+        st.markdown(
+            "<p style='color:#888;font-size:0.875rem;margin:-4px 0 4px 0;'>"
+            "Hint：冲突指「某两个模态的情感方向相反或明显不一致」（例如 face 显示愉悦但 voice 低沉颤抖）</p>",
+            unsafe_allow_html=True,
+        )
         st.multiselect("选择存在冲突的模态对", options=PART1_CONFLICT_OPTIONS,
                        default=existing.get("conflict", []), key=f"conflict_{sid}")
 
