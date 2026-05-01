@@ -789,7 +789,7 @@ def _render_step5(sample_id: str):
                 try:
                     import google.generativeai as genai
                     genai.configure(api_key=api_key)
-                    m = genai.GenerativeModel("gemini-3-flash-preview")
+                    m = genai.GenerativeModel("gemini-2.5-flash")
                     resp = m.generate_content("Reply with the single word: OK")
                     st.success(f"Gemini reachable. Response: `{resp.text.strip()}`")
                 except Exception as e:
