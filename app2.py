@@ -33,7 +33,7 @@ st.set_page_config(
 # ============================================================
 
 HF_REPO_ID  = "YoeYang/XMER-Videos"
-HF_SPLIT    = "seamless_interaction"
+HF_SPLIT    = "seamless"
 HF_BASE_URL = f"https://huggingface.co/datasets/{HF_REPO_ID}/resolve/main/{HF_SPLIT}"
 BATCH_SIZE  = 10
 
