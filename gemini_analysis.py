@@ -145,14 +145,16 @@ def wait_for_file_active(file_obj, timeout: int = 900, poll_interval: float = FI
 
     while True:
         state = getattr(file_obj, "state", None)
-        # FileState.ACTIVE == 2 (numeric enum); also handle legacy string form
-        if state is not None and (str(state) == "2" or "ACTIVE" in str(state).upper()):
+        # Use .name for SDK-version-independent check (older SDK: str→"FileState.ACTIVE";
+        # newer SDK: str→"2"). .name always returns "ACTIVE".
+        state_name = getattr(state, "name", str(state)).upper()
+        if state is not None and "ACTIVE" in state_name:
             return file_obj
         elapsed = int(time.time() - start)
         if elapsed > timeout:
-            raise TimeoutError(f"File {name} not ACTIVE after {timeout}s, last state={state}")
+            raise TimeoutError(f"File {name} not ACTIVE after {timeout}s, last state={state_name}")
         if status_cb:
-            status_cb(f"⏳ Waiting for Google to process file… {elapsed}s elapsed (state: {state})")
+            status_cb(f"⏳ Waiting for Google to process file… {elapsed}s elapsed (state: {state_name})")
         time.sleep(poll_interval)
         file_obj = retry_call(lambda: genai.get_file(name), what=f"get_file({name})")
 
