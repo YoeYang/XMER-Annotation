@@ -145,7 +145,8 @@ def wait_for_file_active(file_obj, timeout: int = 900, poll_interval: float = FI
 
     while True:
         state = getattr(file_obj, "state", None)
-        if state is not None and "ACTIVE" in str(state):
+        # FileState.ACTIVE == 2 (numeric enum); also handle legacy string form
+        if state is not None and (str(state) == "2" or "ACTIVE" in str(state).upper()):
             return file_obj
         elapsed = int(time.time() - start)
         if elapsed > timeout:
