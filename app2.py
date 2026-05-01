@@ -422,7 +422,7 @@ def _run_gemini(sample_id: str, transcript_text: str) -> dict | None:
         return None
 
     try:
-        model = build_gemini_model_simple(api_key)
+        model = build_gemini_model_simple(api_key, model_name="gemini-2.5-flash")
     except Exception as e:
         st.error(f"Could not initialise Gemini model: {e}")
         return None
@@ -439,7 +439,7 @@ def _run_gemini(sample_id: str, transcript_text: str) -> dict | None:
         if no_audio_path:
             try:
                 st.write("📹 Analysing visual cues…")
-                raw = gen_video_signals_from_path(model, no_audio_path)
+                raw = gen_video_signals_from_path(model, no_audio_path, status_cb=st.write)
                 em, desc = parse_output(raw)
                 result["video"] = {"emotion": em, "description": desc, "raw": raw}
                 st.markdown(f"**Visual:** `{em}` — {desc}")
@@ -459,7 +459,7 @@ def _run_gemini(sample_id: str, transcript_text: str) -> dict | None:
         if audio_path:
             try:
                 st.write("🔊 Analysing prosodic cues…")
-                raw = gen_audio_signals_from_path(model, audio_path)
+                raw = gen_audio_signals_from_path(model, audio_path, status_cb=st.write)
                 em, desc = parse_output(raw)
                 result["audio"] = {"emotion": em, "description": desc, "raw": raw}
                 st.markdown(f"**Audio:** `{em}` — {desc}")

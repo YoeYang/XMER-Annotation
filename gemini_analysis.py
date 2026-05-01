@@ -139,7 +139,7 @@ class RateLimiter:
 UPLOAD_LIMITER = RateLimiter(UPLOAD_MIN_INTERVAL_S)
 SEND_LIMITER   = RateLimiter(SEND_MIN_INTERVAL_S)
 
-def wait_for_file_active(file_obj, timeout: int = 900, poll_interval: float = FILE_POLL_INTERVAL_S):
+def wait_for_file_active(file_obj, timeout: int = 900, poll_interval: float = FILE_POLL_INTERVAL_S, status_cb=None):
     start = time.time()
     name = getattr(file_obj, "name", None) or getattr(getattr(file_obj, "file", file_obj), "name", None)
 
@@ -147,8 +147,11 @@ def wait_for_file_active(file_obj, timeout: int = 900, poll_interval: float = FI
         state = getattr(file_obj, "state", None)
         if state is not None and "ACTIVE" in str(state):
             return file_obj
-        if time.time() - start > timeout:
+        elapsed = int(time.time() - start)
+        if elapsed > timeout:
             raise TimeoutError(f"File {name} not ACTIVE after {timeout}s, last state={state}")
+        if status_cb:
+            status_cb(f"⏳ Waiting for Google to process file… {elapsed}s elapsed (state: {state})")
         time.sleep(poll_interval)
         file_obj = retry_call(lambda: genai.get_file(name), what=f"get_file({name})")
 
@@ -501,20 +504,24 @@ def build_gemini_model_simple(
     )
 
 
-def gen_video_signals_from_path(model: genai.GenerativeModel, video_path: str) -> str:
+def gen_video_signals_from_path(model: genai.GenerativeModel, video_path: str, status_cb=None) -> str:
     """Analyze visual emotion from an arbitrary video file path (silent video)."""
     vp = Path(video_path)
     ensure_file(vp, "video file")
 
     chat = model.start_chat(history=[])
     UPLOAD_LIMITER.wait()
+    if status_cb:
+        status_cb(f"📤 Uploading {vp.name} to Google Files API…")
     video_file = retry_call(
         lambda: genai.upload_file(path=str(vp)),
         what=f"upload video {vp.name}",
     )
-    video_file = wait_for_file_active(video_file)
+    video_file = wait_for_file_active(video_file, status_cb=status_cb)
 
     SEND_LIMITER.wait()
+    if status_cb:
+        status_cb("📹 File ready — sending to Gemini for visual analysis…")
     resp = retry_call(
         lambda: chat.send_message([video_file, VIDEO_SIGNALS_PROMPT]),
         what=f"send video {vp.name}",
@@ -522,20 +529,24 @@ def gen_video_signals_from_path(model: genai.GenerativeModel, video_path: str) -
     return normalize_raw((resp.text or "").strip())
 
 
-def gen_audio_signals_from_path(model: genai.GenerativeModel, audio_path: str) -> str:
+def gen_audio_signals_from_path(model: genai.GenerativeModel, audio_path: str, status_cb=None) -> str:
     """Analyze prosodic emotion from an arbitrary audio file path."""
     ap = Path(audio_path)
     ensure_file(ap, "audio file")
 
     chat = model.start_chat(history=[])
     UPLOAD_LIMITER.wait()
+    if status_cb:
+        status_cb(f"📤 Uploading {ap.name} to Google Files API…")
     audio_file = retry_call(
         lambda: genai.upload_file(path=str(ap)),
         what=f"upload audio {ap.name}",
     )
-    audio_file = wait_for_file_active(audio_file)
+    audio_file = wait_for_file_active(audio_file, status_cb=status_cb)
 
     SEND_LIMITER.wait()
+    if status_cb:
+        status_cb("🔊 File ready — sending to Gemini for audio analysis…")
     resp = retry_call(
         lambda: chat.send_message([audio_file, AUDIO_SIGNALS_PROMPT]),
         what=f"send audio {ap.name}",
