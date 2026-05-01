@@ -7,6 +7,8 @@ import json
 import os
 from datetime import datetime
 
+import traceback
+
 import requests
 
 try:
@@ -303,7 +305,6 @@ def _init_state():
         "processed_ids":   set(),  # all handled IDs (saved OR discarded)
         "discard_confirm": False,
         "gemini_error":    None,
-        "selected_split":  "All",
         "selected_batch":  1,
     }
     for k, v in defaults.items():
@@ -443,8 +444,11 @@ def _run_gemini(sample_id: str, transcript_text: str) -> dict | None:
                 result["video"] = {"emotion": em, "description": desc, "raw": raw}
                 st.markdown(f"**Visual:** `{em}` — {desc}")
             except Exception as e:
+                tb = traceback.format_exc()
                 result["video"] = {"emotion": "", "description": "", "raw": "", "error": str(e)}
                 st.warning(f"Visual analysis failed: {e}")
+                with st.expander("🐛 Visual error details"):
+                    st.code(tb)
         else:
             result["video"] = {"emotion": "", "description": "", "raw": "", "error": "download failed"}
             st.warning("Could not download the silent video.")
@@ -460,8 +464,11 @@ def _run_gemini(sample_id: str, transcript_text: str) -> dict | None:
                 result["audio"] = {"emotion": em, "description": desc, "raw": raw}
                 st.markdown(f"**Audio:** `{em}` — {desc}")
             except Exception as e:
+                tb = traceback.format_exc()
                 result["audio"] = {"emotion": "", "description": "", "raw": "", "error": str(e)}
                 st.warning(f"Audio analysis failed: {e}")
+                with st.expander("🐛 Audio error details"):
+                    st.code(tb)
         else:
             result["audio"] = {"emotion": "", "description": "", "raw": "", "error": "download failed"}
             st.warning("Could not download the audio file.")
@@ -474,8 +481,11 @@ def _run_gemini(sample_id: str, transcript_text: str) -> dict | None:
             result["text"] = {"emotion": em, "description": desc, "raw": raw}
             st.markdown(f"**Text:** `{em}` — {desc}")
         except Exception as e:
+            tb = traceback.format_exc()
             result["text"] = {"emotion": "", "description": "", "raw": "", "error": str(e)}
             st.warning(f"Text analysis failed: {e}")
+            with st.expander("🐛 Text error details"):
+                st.code(tb)
 
         # ── Conflict assessment ───────────────────────────────────
         try:
@@ -494,8 +504,11 @@ def _run_gemini(sample_id: str, transcript_text: str) -> dict | None:
             flag = "⚠️ **Conflict detected**" if detected else "✅ **No conflict**"
             st.markdown(f"{flag}: {desc}")
         except Exception as e:
+            tb = traceback.format_exc()
             result["conflict"] = {"detected": False, "description": "", "raw": "", "error": str(e)}
             st.warning(f"Conflict assessment failed: {e}")
+            with st.expander("🐛 Conflict error details"):
+                st.code(tb)
 
         status.update(label="✅ Gemini analysis complete!", state="complete")
 
@@ -540,13 +553,16 @@ def _render_step1(sample_id: str):
     no_audio_url = _file_url(sample_id, f"{sample_id}_no_audio.mp4")
     components.html(
         f"""
-        <video width="100%" controls muted style="border-radius:8px;">
-          <source src="{no_audio_url}" type="video/mp4">
-          <p>Your browser does not support HTML5 video.
-             <a href="{no_audio_url}">Download video</a>.</p>
-        </video>
+        <div style="display:flex;justify-content:center;">
+          <video controls muted
+            style="max-width:280px;width:100%;border-radius:8px;background:#000;">
+            <source src="{no_audio_url}" type="video/mp4">
+            <p>Your browser does not support HTML5 video.
+               <a href="{no_audio_url}">Download video</a>.</p>
+          </video>
+        </div>
         """,
-        height=380,
+        height=520,
     )
 
     st.markdown("**Facial / body emotion**")
@@ -685,7 +701,19 @@ def _render_step4(sample_id: str):
     st.caption("Watch the video with audio, then expand the dataset annotations below.")
 
     video_url = _file_url(sample_id, f"{sample_id}.mp4")
-    st.video(video_url)
+    components.html(
+        f"""
+        <div style="display:flex;justify-content:center;">
+          <video controls
+            style="max-width:280px;width:100%;border-radius:8px;background:#000;">
+            <source src="{video_url}" type="video/mp4">
+            <p>Your browser does not support HTML5 video.
+               <a href="{video_url}">Download video</a>.</p>
+          </video>
+        </div>
+        """,
+        height=520,
+    )
 
     transcript = fetch_transcript(sample_id)
     if transcript:
@@ -752,6 +780,24 @@ def _render_step5(sample_id: str):
     st.markdown("")
 
     if gr is None:
+        # ── Gemini API key test ───────────────────────────────────
+        if st.button("🔑 Test Gemini API Key", key="test_gemini_key"):
+            api_key = _get_gemini_api_key()
+            if not api_key:
+                st.error("No API key found. Add GOOGLE_API_KEY to env or .streamlit/secrets.toml under [gemini].")
+            else:
+                try:
+                    import google.generativeai as genai
+                    genai.configure(api_key=api_key)
+                    m = genai.GenerativeModel("gemini-1.5-flash")
+                    resp = m.generate_content("Reply with the single word: OK")
+                    st.success(f"Gemini reachable. Response: `{resp.text.strip()}`")
+                except Exception as e:
+                    st.error(f"Gemini test failed: {e}")
+                    with st.expander("🐛 Full traceback"):
+                        st.code(traceback.format_exc())
+
+        st.markdown("")
         # Show run / retry button
         err = st.session_state.gemini_error
         if err:
@@ -811,24 +857,8 @@ def main():
         st.title("🔍 XMER Data Cleaning")
         st.divider()
 
-        split_options = ["All", "Improvised", "Naturalistic"]
-        sel_split = st.selectbox(
-            "Dataset Split",
-            split_options,
-            index=split_options.index(st.session_state.selected_split),
-        )
-        st.session_state.selected_split = sel_split
-
         all_samples = discover_samples()
-
-        # Filter by split (heuristic: improvised sessions have 'I' after the third underscore-segment)
-        if sel_split == "Improvised":
-            # TODO: adjust this filter once the exact sample-ID convention is confirmed
-            filtered = [s for s in all_samples if len(s.split("_")) > 2 and "I" in s.split("_")[2]]
-        elif sel_split == "Naturalistic":
-            filtered = [s for s in all_samples if len(s.split("_")) > 2 and "N" in s.split("_")[2]]
-        else:
-            filtered = all_samples
+        filtered = all_samples
 
         unprocessed = [s for s in filtered if s not in st.session_state.processed_ids]
         total_batches = max(1, -(-len(unprocessed) // BATCH_SIZE))  # ceiling division
