@@ -1,8 +1,10 @@
 # Annotation output
 annotations.json
 
-# Streamlit secrets (含 Google 凭证，绝对不能提交)
+# Streamlit secrets & Google 凭证（绝对不能提交）
 .streamlit/secrets.toml
+*.json
+!package.json
 
 # Python
 __pycache__/
