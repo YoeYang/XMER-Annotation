@@ -267,16 +267,37 @@ def _get_or_create_worksheet(sheet_name: str, headers: list):
         return None
 
 
-def _save_kept(record: dict) -> bool:
+def _upsert_kept(record: dict) -> bool:
+    """Insert or update a row in kept_samples by sample_id (column 1)."""
     ws = _get_or_create_worksheet("kept_samples", KEPT_HEADERS)
     if ws is None:
         return False
     try:
         row = [str(record.get(h, "")) for h in KEPT_HEADERS]
-        ws.append_row(row, value_input_option="USER_ENTERED")
+        sample_id = record.get("sample_id", "")
+        cell = ws.find(sample_id, in_column=1) if sample_id else None
+        if cell:
+            ws.update(f"A{cell.row}", [row])
+        else:
+            ws.append_row(row, value_input_option="USER_ENTERED")
         return True
     except Exception:
         return False
+
+
+def _fetch_record_from_sheets(sample_id: str) -> dict | None:
+    """Fetch a single kept_samples row by sample_id; returns dict or None."""
+    ws = _get_or_create_worksheet("kept_samples", KEPT_HEADERS)
+    if ws is None:
+        return None
+    try:
+        cell = ws.find(sample_id, in_column=1)
+        if not cell:
+            return None
+        row = ws.row_values(cell.row)
+        return dict(zip(KEPT_HEADERS, row))
+    except Exception:
+        return None
 
 
 def _save_discarded(record: dict) -> bool:
@@ -297,15 +318,16 @@ def _save_discarded(record: dict) -> bool:
 
 def _init_state():
     defaults: dict = {
-        "current_sample":  None,   # {"sample_id": str}
-        "current_step":    1,      # 1-5
-        "annotations":     {},     # human annotation values
-        "gemini_result":   None,   # dict returned by run_gemini_analysis
-        "sample_queue":    [],     # ordered list of sample_ids for this session
-        "processed_ids":   set(),  # all handled IDs (saved OR discarded)
-        "discard_confirm": False,
-        "gemini_error":    None,
-        "selected_batch":  1,
+        "current_sample":    None,   # {"sample_id": str}
+        "current_step":      1,      # 1-5
+        "annotations":       {},     # human annotation values
+        "gemini_result":     None,   # dict returned by run_gemini_analysis
+        "sample_queue":      [],     # ordered list of sample_ids for this session
+        "processed_ids":     set(),  # all handled IDs (saved OR discarded)
+        "discard_confirm":   False,
+        "gemini_error":      None,
+        "selected_batch":    1,
+        "annotation_history": {},   # sample_id → {annotations, gemini_result, record}
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -373,13 +395,64 @@ def _do_save(sample_id: str):
         "transcript_text":  transcript,
         "has_conflict_human": str(_derive_has_conflict(anns)),
     }
-    ok = _save_kept(record)
+    ok = _upsert_kept(record)
+    # Store in in-session history for quick re-open / edit
+    st.session_state.annotation_history[sample_id] = {
+        "annotations":   dict(anns),
+        "gemini_result": st.session_state.gemini_result,
+        "record":        record,
+    }
     st.session_state.processed_ids.add(sample_id)
     st.session_state.current_sample = None
     if ok:
         st.success("✅ Sample saved to Google Sheets!")
     else:
         st.warning("Google Sheets not connected — progress tracked in session only.")
+    st.rerun()
+
+
+def _load_sample_for_edit(sample_id: str, entry: dict | None = None):
+    """Re-open a sample for editing, pre-filling widgets from history or a sheets record."""
+    if entry is None:
+        entry = st.session_state.annotation_history.get(sample_id, {})
+
+    anns = entry.get("annotations", {})
+    gr   = entry.get("gemini_result", None)
+
+    # Pre-fill widget keys so radio/slider show saved values immediately
+    def _safe_float(v, default=0.0):
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return default
+
+    if anns.get("visual_emotion_human"):
+        st.session_state[f"vis_em_{sample_id}"]  = anns["visual_emotion_human"]
+        st.session_state[f"vis_val_{sample_id}"] = _safe_float(anns.get("visual_valence_human"))
+    if anns.get("audio_emotion_human"):
+        st.session_state[f"aud_em_{sample_id}"]  = anns["audio_emotion_human"]
+        st.session_state[f"aud_val_{sample_id}"] = _safe_float(anns.get("audio_valence_human"))
+    if anns.get("text_sentiment_human"):
+        st.session_state[f"txt_sent_{sample_id}"]  = anns["text_sentiment_human"]
+        st.session_state[f"txt_val_{sample_id}"]   = _safe_float(anns.get("text_valence_human"))
+        st.session_state[f"txt_notes_{sample_id}"] = anns.get("text_notes_human", "")
+
+    # Decide starting step: if all 3 human annotations are present → Step 4 Review
+    all_human_done = (
+        bool(anns.get("visual_emotion_human"))
+        and bool(anns.get("audio_emotion_human"))
+        and bool(anns.get("text_sentiment_human"))
+    )
+    start_step = 4 if all_human_done else 1
+
+    st.session_state.current_sample  = {"sample_id": sample_id}
+    st.session_state.current_step    = start_step
+    st.session_state.annotations     = dict(anns)
+    st.session_state.gemini_result   = gr
+    st.session_state.discard_confirm = False
+    st.session_state.gemini_error    = None
+    # Remove from processed so Save becomes available again
+    st.session_state.processed_ids.discard(sample_id)
     st.rerun()
 
 
@@ -887,6 +960,62 @@ def main():
 
         st.divider()
         st.caption(f"Processed this session: **{len(st.session_state.processed_ids)}**")
+
+        # ── History ───────────────────────────────────────────────
+        history = st.session_state.annotation_history
+        if history:
+            with st.expander(f"📝 History ({len(history)})", expanded=False):
+                for sid, entry in reversed(list(history.items())):
+                    col_a, col_b = st.columns([3, 1])
+                    with col_a:
+                        st.caption(sid)
+                    with col_b:
+                        if st.button("Edit", key=f"reopen_{sid}"):
+                            _load_sample_for_edit(sid, entry)
+
+        # ── Load from Sheets ──────────────────────────────────────
+        with st.expander("🔍 Load saved sample", expanded=False):
+            load_id = st.text_input(
+                "Sample ID", key="load_sample_id",
+                placeholder="e.g. V03_S01_I00000307…",
+            )
+            if st.button("Load from Sheets", key="load_sample_btn"):
+                sid = load_id.strip()
+                if not sid:
+                    st.warning("Please enter a sample ID.")
+                elif sid in st.session_state.annotation_history:
+                    _load_sample_for_edit(sid)
+                else:
+                    with st.spinner("Fetching from Google Sheets…"):
+                        rec = _fetch_record_from_sheets(sid)
+                    if rec:
+                        def _sf(v):
+                            try: return float(v)
+                            except: return 0.0
+                        anns = {
+                            "visual_emotion_human": rec.get("visual_emotion_human", ""),
+                            "visual_valence_human": _sf(rec.get("visual_valence_human")),
+                            "audio_emotion_human":  rec.get("audio_emotion_human", ""),
+                            "audio_valence_human":  _sf(rec.get("audio_valence_human")),
+                            "text_sentiment_human": rec.get("text_sentiment_human", ""),
+                            "text_valence_human":   _sf(rec.get("text_valence_human")),
+                            "text_notes_human":     rec.get("text_notes_human", ""),
+                        }
+                        gr = {
+                            "video":    {"emotion": rec.get("gemini_visual_emotion", ""),
+                                         "description": rec.get("gemini_visual_reasoning", "")},
+                            "audio":    {"emotion": rec.get("gemini_audio_emotion", ""),
+                                         "description": rec.get("gemini_audio_reasoning", "")},
+                            "text":     {"emotion": rec.get("gemini_text_sentiment", ""),
+                                         "description": rec.get("gemini_text_reasoning", "")},
+                            "conflict": {
+                                "detected":    rec.get("gemini_conflict_detected", "").lower() == "true",
+                                "description": rec.get("gemini_conflict_description", ""),
+                            },
+                        }
+                        _load_sample_for_edit(sid, {"annotations": anns, "gemini_result": gr, "record": rec})
+                    else:
+                        st.error(f"`{sid}` not found in Google Sheets.")
 
     # ── No sample loaded ─────────────────────────────────────
     sample = st.session_state.current_sample
