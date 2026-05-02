@@ -492,7 +492,7 @@ def build_gemini_model_simple(
     model_name: str = "gemini-2.5-pro",
     temperature: float = 0.4,
     top_p: float = 0.9,
-    max_output_tokens: int = 512,
+    max_output_tokens: int = 2048,
 ) -> genai.GenerativeModel:
     """Build a Gemini model with an explicit API key (no env-var required)."""
     genai.configure(api_key=api_key)
