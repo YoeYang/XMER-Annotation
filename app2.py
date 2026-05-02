@@ -310,17 +310,18 @@ def _sync_processed_ids_from_sheets():
     errors: list = []
 
     for sheet_name, headers in [
-        ("kept_samples",     KEPT_HEADERS),
+        ("kept_samples",      KEPT_HEADERS),
         ("discarded_samples", DISCARDED_HEADERS),
     ]:
         ws = _get_or_create_worksheet(sheet_name, headers)
         if ws is None:
             continue
         try:
-            ids = ws.col_values(1)   # column 1 = sample_id, includes header
-            for sid in ids[1:]:       # skip header row
-                if sid and sid.strip():
-                    loaded.add(sid.strip())
+            # get_all_values() returns every row regardless of gspread version limits
+            all_rows = ws.get_all_values()
+            for row in all_rows[1:]:      # skip header row
+                if row and row[0].strip():
+                    loaded.add(row[0].strip())
         except Exception as e:
             errors.append(f"{sheet_name}: {e}")
 
@@ -328,9 +329,9 @@ def _sync_processed_ids_from_sheets():
     st.session_state.sheets_ids_loaded = True
 
     if errors:
-        st.sidebar.warning("Sheets sync partial errors: " + "; ".join(errors))
-    elif loaded:
-        st.sidebar.toast(f"✅ Synced {len(loaded)} previously annotated samples from Sheets.")
+        st.warning("Sheets sync partial errors: " + "; ".join(errors))
+    if loaded:
+        st.toast(f"✅ Synced {len(loaded)} previously annotated samples from Sheets.")
 
 
 def _save_discarded(record: dict) -> bool:
