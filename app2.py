@@ -931,10 +931,7 @@ def main():
         st.divider()
 
         all_samples = discover_samples()
-        filtered = all_samples
-
-        unprocessed = [s for s in filtered if s not in st.session_state.processed_ids]
-        total_batches = max(1, -(-len(unprocessed) // BATCH_SIZE))  # ceiling division
+        total_batches = max(1, -(-len(all_samples) // BATCH_SIZE))
 
         sel_batch = st.number_input(
             "Batch",
@@ -945,21 +942,42 @@ def main():
         )
         st.session_state.selected_batch = sel_batch
 
-        start = (sel_batch - 1) * BATCH_SIZE
-        batch_samples = unprocessed[start : start + BATCH_SIZE]
+        batch_start   = (sel_batch - 1) * BATCH_SIZE
+        batch_samples = all_samples[batch_start : batch_start + BATCH_SIZE]
 
-        st.caption(
-            f"{len(unprocessed)} unprocessed · {len(batch_samples)} in this batch"
-        )
+        # Selectbox: ✓ processed  ○ unprocessed
+        display_labels = [
+            f"{'✓' if s in st.session_state.processed_ids else '○'}  {i+1}. {s}"
+            for i, s in enumerate(batch_samples)
+        ]
+        sel_idx = st.selectbox(
+            "Sample",
+            range(len(batch_samples)),
+            format_func=lambda i: display_labels[i],
+            key="sidebar_sample_sel",
+        ) if batch_samples else None
+
+        unprocessed_in_batch = [s for s in batch_samples
+                                 if s not in st.session_state.processed_ids]
+
+        col_go, col_next = st.columns(2)
+        with col_go:
+            if st.button("▶ Go", type="primary",
+                         disabled=(sel_idx is None),
+                         use_container_width=True):
+                _load_sample_for_edit(batch_samples[sel_idx])
+        with col_next:
+            if st.button("⏭ Next", disabled=not unprocessed_in_batch,
+                         use_container_width=True):
+                _load_sample_for_edit(unprocessed_in_batch[0])
 
         if not HF_AVAILABLE:
             st.warning("`huggingface_hub` not installed.\nRun: `pip install huggingface_hub`")
 
-        if st.button("▶ Load Next Sample", type="primary", disabled=not batch_samples):
-            _load_next_sample(batch_samples)
-
         st.divider()
-        st.caption(f"Processed this session: **{len(st.session_state.processed_ids)}**")
+        n_done = len(st.session_state.processed_ids)
+        n_left = len([s for s in all_samples if s not in st.session_state.processed_ids])
+        st.caption(f"✅ {n_done} done &nbsp;·&nbsp; ○ {n_left} remaining")
 
         # ── History ───────────────────────────────────────────────
         history = st.session_state.annotation_history
@@ -1043,11 +1061,17 @@ def main():
     # ── Top bar ───────────────────────────────────────────────
     tc1, tc2, tc3, tc4 = st.columns([4, 1, 1, 1])
     with tc1:
-        processed_n = len(st.session_state.processed_ids)
-        queue_n     = len(st.session_state.sample_queue)
+        all_s = discover_samples()
+        if sample_id in all_s:
+            abs_idx        = all_s.index(sample_id)
+            cur_batch      = abs_idx // BATCH_SIZE + 1
+            pos_in_batch   = abs_idx % BATCH_SIZE + 1
+            batch_sz       = min(BATCH_SIZE, len(all_s) - (cur_batch - 1) * BATCH_SIZE)
+            location_str   = f"Batch {cur_batch} · Sample {pos_in_batch}/{batch_sz}"
+        else:
+            location_str = sample_id
         st.markdown(
-            f"**`{sample_id}`** &nbsp;|&nbsp; Step {step}/5 &nbsp;|&nbsp; "
-            f"Processed: {processed_n} &nbsp;|&nbsp; Queue: {queue_n}",
+            f"**`{sample_id}`** &nbsp;|&nbsp; Step {step}/5 &nbsp;|&nbsp; {location_str}",
             unsafe_allow_html=True,
         )
     with tc2:
