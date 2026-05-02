@@ -486,8 +486,9 @@ def _load_sample_for_edit(sample_id: str, entry: dict | None = None):
     st.session_state.gemini_result   = gr
     st.session_state.discard_confirm = False
     st.session_state.gemini_error    = None
-    # Remove from processed so Save becomes available again
-    st.session_state.processed_ids.discard(sample_id)
+    # NOTE: do NOT discard from processed_ids here — Save is enabled by
+    # annotations being filled, not by absence from processed_ids.
+    # Removing here would break ✓ indicators and the processed count.
     st.rerun()
 
 
@@ -1017,7 +1018,14 @@ def main():
         st.divider()
         n_done = len(st.session_state.processed_ids)
         n_left = len([s for s in all_samples if s not in st.session_state.processed_ids])
-        st.caption(f"✅ {n_done} done &nbsp;·&nbsp; ○ {n_left} remaining")
+        rc1, rc2 = st.columns([3, 1])
+        with rc1:
+            st.caption(f"✅ {n_done} done &nbsp;·&nbsp; ○ {n_left} remaining")
+        with rc2:
+            if st.button("🔄", help="Re-sync ✓/○ from Google Sheets", key="resync_btn"):
+                st.session_state.sheets_ids_loaded = False
+                _sync_processed_ids_from_sheets()
+                st.rerun()
 
         # ── History ───────────────────────────────────────────────
         history = st.session_state.annotation_history
