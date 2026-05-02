@@ -300,6 +300,39 @@ def _fetch_record_from_sheets(sample_id: str) -> dict | None:
         return None
 
 
+def _sync_processed_ids_from_sheets():
+    """On first call per session, pull all saved/discarded sample_ids from Sheets
+    into processed_ids so the sidebar dropdown shows correct ✓/○ indicators."""
+    if st.session_state.sheets_ids_loaded:
+        return
+
+    loaded: set = set()
+    errors: list = []
+
+    for sheet_name, headers in [
+        ("kept_samples",     KEPT_HEADERS),
+        ("discarded_samples", DISCARDED_HEADERS),
+    ]:
+        ws = _get_or_create_worksheet(sheet_name, headers)
+        if ws is None:
+            continue
+        try:
+            ids = ws.col_values(1)   # column 1 = sample_id, includes header
+            for sid in ids[1:]:       # skip header row
+                if sid and sid.strip():
+                    loaded.add(sid.strip())
+        except Exception as e:
+            errors.append(f"{sheet_name}: {e}")
+
+    st.session_state.processed_ids.update(loaded)
+    st.session_state.sheets_ids_loaded = True
+
+    if errors:
+        st.sidebar.warning("Sheets sync partial errors: " + "; ".join(errors))
+    elif loaded:
+        st.sidebar.toast(f"✅ Synced {len(loaded)} previously annotated samples from Sheets.")
+
+
 def _save_discarded(record: dict) -> bool:
     ws = _get_or_create_worksheet("discarded_samples", DISCARDED_HEADERS)
     if ws is None:
@@ -327,7 +360,8 @@ def _init_state():
         "discard_confirm":   False,
         "gemini_error":      None,
         "selected_batch":    1,
-        "annotation_history": {},   # sample_id → {annotations, gemini_result, record}
+        "annotation_history":  {},    # sample_id → {annotations, gemini_result, record}
+        "sheets_ids_loaded":   False, # whether processed_ids has been synced from Sheets
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -925,6 +959,11 @@ def _render_step5(sample_id: str):
 # ============================================================
 
 def main():
+    # ── Sync Sheets → processed_ids on first load ─────────────
+    if not st.session_state.sheets_ids_loaded:
+        with st.spinner("Syncing annotation history from Google Sheets…"):
+            _sync_processed_ids_from_sheets()
+
     # ── Sidebar ──────────────────────────────────────────────
     with st.sidebar:
         st.title("🔍 XMER Data Cleaning")
