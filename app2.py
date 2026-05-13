@@ -585,7 +585,7 @@ def _run_gemini(sample_id: str, transcript_text: str) -> dict | None:
         return None
 
     result: dict = {}
-    no_audio_filename = f"{sample_id}_no_audio.mp4"
+    no_audio_filename = _no_audio_filename(sample_id)
     audio_filename    = f"{sample_id}.wav"
 
     with st.status("Running Gemini multimodal analysis…", expanded=True) as status:
@@ -703,11 +703,16 @@ def _step_indicator(current: int):
     st.markdown("")
 
 
+def _no_audio_filename(sample_id: str) -> str:
+    suffix = "_noaudio.mp4" if _get_sample_split(sample_id) == HF_SPLIT_KEMOCON else "_no_audio.mp4"
+    return f"{sample_id}{suffix}"
+
+
 def _render_step1(sample_id: str):
     st.markdown("### Step 1 — Visual Modality (no audio)")
     st.caption("Watch the silent video and annotate facial / body expression.")
 
-    no_audio_url = _file_url(sample_id, f"{sample_id}_no_audio.mp4")
+    no_audio_url = _file_url(sample_id, _no_audio_filename(sample_id))
     components.html(
         f"""
         <div style="display:flex;justify-content:center;">
