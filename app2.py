@@ -712,14 +712,14 @@ def _render_step1(sample_id: str):
         f"""
         <div style="display:flex;justify-content:center;">
           <video controls muted
-            style="max-width:280px;width:100%;border-radius:8px;background:#000;">
+            style="max-width:480px;width:100%;border-radius:8px;background:#000;">
             <source src="{no_audio_url}" type="video/mp4">
             <p>Your browser does not support HTML5 video.
                <a href="{no_audio_url}">Download video</a>.</p>
           </video>
         </div>
         """,
-        height=520,
+        height=620,
     )
 
     st.markdown("**Facial / body emotion**")
@@ -862,14 +862,14 @@ def _render_step4(sample_id: str):
         f"""
         <div style="display:flex;justify-content:center;">
           <video controls
-            style="max-width:280px;width:100%;border-radius:8px;background:#000;">
+            style="max-width:480px;width:100%;border-radius:8px;background:#000;">
             <source src="{video_url}" type="video/mp4">
             <p>Your browser does not support HTML5 video.
                <a href="{video_url}">Download video</a>.</p>
           </video>
         </div>
         """,
-        height=520,
+        height=620,
     )
 
     transcript = fetch_transcript(sample_id)
