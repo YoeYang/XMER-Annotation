@@ -34,10 +34,10 @@ st.set_page_config(
 # SECTION 1: CONFIGURATION
 # ============================================================
 
-HF_REPO_ID  = "YoeYang/XMER-Videos"
-HF_SPLIT    = "seamless"
-HF_BASE_URL = f"https://huggingface.co/datasets/{HF_REPO_ID}/resolve/main/{HF_SPLIT}"
-BATCH_SIZE  = 10
+HF_REPO_ID       = "YoeYang/XMER-Videos"
+HF_SPLIT         = "seamless"
+HF_SPLIT_KEMOCON = "K-EmoCon"
+BATCH_SIZE       = 10
 
 VISUAL_EMOTIONS = [
     "Neutral", "Happy", "Sad", "Angry",
@@ -67,6 +67,12 @@ KEPT_HEADERS = [
     "selfReport_1P_IS", "selfReport_1P_R",
     "thirdParty_3P_IS", "thirdParty_3P_R", "thirdParty_3P_V",
     "transcript_text", "has_conflict_human",
+    # K-EmoCon specific (empty for seamless samples)
+    "kemocon_self_arousal", "kemocon_self_valence", "kemocon_self_main_categories",
+    "kemocon_self_basic_emotions",
+    "kemocon_partner_arousal", "kemocon_partner_valence", "kemocon_partner_categories",
+    "kemocon_external_arousal", "kemocon_external_valence",
+    "kemocon_conflict_potential",
 ]
 
 DISCARDED_HEADERS = [
@@ -96,8 +102,9 @@ def _get_gemini_api_key() -> str:
 
 
 def _file_url(sample_id: str, filename: str) -> str:
+    split = _get_sample_split(sample_id)
     token = _get_hf_token()
-    url = f"{HF_BASE_URL}/{sample_id}/{filename}"
+    url = f"https://huggingface.co/datasets/{HF_REPO_ID}/resolve/main/{split}/{sample_id}/{filename}"
     if token:
         url += f"?token={token}"
     return url
@@ -135,6 +142,14 @@ def _derive_has_conflict(annotations: dict) -> bool:
     return any(x * y < 0 for x, y in [(v, a), (v, t), (a, t)])
 
 
+def _parse_kemocon_annotation(ann_list: list) -> dict:
+    """Extract the K-EmoCon annotation object (contains 'self_report' key)."""
+    for item in ann_list:
+        if isinstance(item, dict) and "self_report" in item:
+            return item
+    return {}
+
+
 def _parse_annotation_types(ann_list: list) -> dict:
     """Flexibly extract typed annotation content from a JSONL-parsed list."""
     result = {}
@@ -166,21 +181,34 @@ def _parse_annotation_types(ann_list: list) -> dict:
 # ============================================================
 
 @st.cache_data(ttl=3600, show_spinner="Discovering samples from HuggingFace…")
-def discover_samples() -> list:
+def _get_split_map() -> dict:
+    """Returns {sample_id: split} for all samples across both splits."""
     if not HF_AVAILABLE:
-        return []
+        return {}
     token = _get_hf_token() or None
     try:
         all_files = list(list_repo_files(HF_REPO_ID, repo_type="dataset", token=token))
-        sample_ids: set[str] = set()
+        result: dict[str, str] = {}
         for f in all_files:
             parts = f.replace("\\", "/").split("/")
-            if len(parts) >= 3 and parts[0] == HF_SPLIT and parts[1]:
-                sample_ids.add(parts[1])
-        return sorted(sample_ids)
+            if len(parts) >= 3 and parts[0] in (HF_SPLIT, HF_SPLIT_KEMOCON) and parts[1]:
+                result[parts[1]] = parts[0]
+        return result
     except Exception as e:
         st.warning(f"Could not list HuggingFace samples: {e}")
-        return []
+        return {}
+
+
+def discover_samples() -> list:
+    """Returns all sample IDs: seamless first, then K-EmoCon."""
+    split_map = _get_split_map()
+    seamless = sorted(s for s, sp in split_map.items() if sp == HF_SPLIT)
+    kemocon  = sorted(s for s, sp in split_map.items() if sp == HF_SPLIT_KEMOCON)
+    return seamless + kemocon
+
+
+def _get_sample_split(sample_id: str) -> str:
+    return _get_split_map().get(sample_id, HF_SPLIT)
 
 
 @st.cache_data(show_spinner=False)
@@ -212,7 +240,8 @@ def download_for_gemini(sample_id: str, filename: str) -> str | None:
     if not HF_AVAILABLE:
         return None
     token = _get_hf_token() or None
-    hf_path = f"{HF_SPLIT}/{sample_id}/{filename}"
+    split = _get_sample_split(sample_id)
+    hf_path = f"{split}/{sample_id}/{filename}"
     try:
         return hf_hub_download(
             repo_id=HF_REPO_ID,
@@ -399,10 +428,11 @@ def _do_save(sample_id: str):
     ann_list   = fetch_annotations_jsonl(sample_id)
     typed_anns = _parse_annotation_types(ann_list)
 
+    split = _get_sample_split(sample_id)
     record = {
         "sample_id":       sample_id,
         "timestamp":       datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC"),
-        "dataset_split":   HF_SPLIT,
+        "dataset_split":   split,
         "participant_id":  _parse_participant_id(sample_id),
         # Human annotations
         "visual_emotion_human":  anns.get("visual_emotion_human", ""),
@@ -430,6 +460,24 @@ def _do_save(sample_id: str):
         "transcript_text":  transcript,
         "has_conflict_human": str(_derive_has_conflict(anns)),
     }
+    if split == HF_SPLIT_KEMOCON:
+        kemocon_raw = _parse_kemocon_annotation(ann_list)
+        sr = kemocon_raw.get("self_report", {}) if kemocon_raw else {}
+        pt = kemocon_raw.get("partner",     {}) if kemocon_raw else {}
+        ex = kemocon_raw.get("external",    {}) if kemocon_raw else {}
+        fl = kemocon_raw.get("flags",       {}) if kemocon_raw else {}
+        record.update({
+            "kemocon_self_arousal":         str(sr.get("arousal", "")),
+            "kemocon_self_valence":         str(sr.get("valence", "")),
+            "kemocon_self_main_categories": sr.get("main_categories", ""),
+            "kemocon_self_basic_emotions":  json.dumps(sr.get("basic_emotions", {})),
+            "kemocon_partner_arousal":      str(pt.get("arousal", "")),
+            "kemocon_partner_valence":      str(pt.get("valence", "")),
+            "kemocon_partner_categories":   pt.get("categories", ""),
+            "kemocon_external_arousal":     str(ex.get("arousal", "")),
+            "kemocon_external_valence":     str(ex.get("valence", "")),
+            "kemocon_conflict_potential":   str(fl.get("conflict_potential", "")),
+        })
     ok = _upsert_kept(record)
     # Store in in-session history for quick re-open / edit
     st.session_state.annotation_history[sample_id] = {
@@ -831,27 +879,75 @@ def _render_step4(sample_id: str):
 
     with st.expander("📂 Dataset Annotations", expanded=False):
         ann_list = fetch_annotations_jsonl(sample_id)
+        split = _get_sample_split(sample_id)
         if ann_list:
-            typed = _parse_annotation_types(ann_list)
-            labels = {
-                "1P-IS": "1P Self-Report — Internal State",
-                "1P-R":  "1P Self-Report — Rationale",
-                "3P-IS": "3P Third-Party — Internal State",
-                "3P-R":  "3P Third-Party — Rationale",
-                "3P-V":  "3P Third-Party — Valence",
-            }
-            for key, label in labels.items():
-                val = typed.get(key, "N/A")
-                st.markdown(f"**{label}**")
-                st.markdown(
-                    f"<div style='background:#f8f9fa;padding:8px 12px;"
-                    f"border-radius:6px;margin-bottom:8px;'>{val}</div>",
-                    unsafe_allow_html=True,
-                )
-            if not typed:
-                st.caption("Raw annotation data:")
-                for item in ann_list:
-                    st.json(item)
+            if split == HF_SPLIT_KEMOCON:
+                kemocon_raw = _parse_kemocon_annotation(ann_list)
+                if kemocon_raw:
+                    sr = kemocon_raw.get("self_report", {})
+                    pt = kemocon_raw.get("partner",     {})
+                    ex = kemocon_raw.get("external",    {})
+                    fl = kemocon_raw.get("flags",       {})
+
+                    def _ann_box(content: str):
+                        st.markdown(
+                            f"<div style='background:#f8f9fa;padding:8px 12px;"
+                            f"border-radius:6px;margin-bottom:8px;'>{content}</div>",
+                            unsafe_allow_html=True,
+                        )
+
+                    st.markdown("**Self-Report**")
+                    be = sr.get("basic_emotions", {})
+                    be_str = "  ".join(f"{k}: {v}" for k, v in be.items()) if be else "N/A"
+                    _ann_box(
+                        f"Arousal: <b>{sr.get('arousal', 'N/A')}</b> &nbsp;·&nbsp; "
+                        f"Valence: <b>{sr.get('valence', 'N/A')}</b><br>"
+                        f"Main categories: <b>{sr.get('main_categories', 'N/A')}</b><br>"
+                        f"Basic emotions: {be_str}"
+                    )
+
+                    st.markdown("**Partner**")
+                    _ann_box(
+                        f"Arousal: <b>{pt.get('arousal', 'N/A')}</b> &nbsp;·&nbsp; "
+                        f"Valence: <b>{pt.get('valence', 'N/A')}</b><br>"
+                        f"Categories: <b>{pt.get('categories', 'N/A')}</b>"
+                    )
+
+                    st.markdown("**External Observer**")
+                    _ann_box(
+                        f"Arousal: <b>{ex.get('arousal', 'N/A')}</b> &nbsp;·&nbsp; "
+                        f"Valence: <b>{ex.get('valence', 'N/A')}</b>"
+                    )
+
+                    if fl:
+                        conflict = fl.get("conflict_potential", False)
+                        flag = "⚠️ Conflict potential" if conflict else "✅ No conflict potential"
+                        st.markdown(f"**Flags:** {flag}")
+                else:
+                    st.caption("Raw annotation data:")
+                    for item in ann_list:
+                        st.json(item)
+            else:
+                typed = _parse_annotation_types(ann_list)
+                labels = {
+                    "1P-IS": "1P Self-Report — Internal State",
+                    "1P-R":  "1P Self-Report — Rationale",
+                    "3P-IS": "3P Third-Party — Internal State",
+                    "3P-R":  "3P Third-Party — Rationale",
+                    "3P-V":  "3P Third-Party — Valence",
+                }
+                for key, label in labels.items():
+                    val = typed.get(key, "N/A")
+                    st.markdown(f"**{label}**")
+                    st.markdown(
+                        f"<div style='background:#f8f9fa;padding:8px 12px;"
+                        f"border-radius:6px;margin-bottom:8px;'>{val}</div>",
+                        unsafe_allow_html=True,
+                    )
+                if not typed:
+                    st.caption("Raw annotation data:")
+                    for item in ann_list:
+                        st.json(item)
         else:
             st.info("No annotation file found for this sample (N/A).")
 
