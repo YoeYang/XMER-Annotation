@@ -1070,6 +1070,16 @@ def main():
         all_samples = discover_samples()
         total_batches = max(1, -(-len(all_samples) // BATCH_SIZE))
 
+        # ── Debug: split breakdown ────────────────────────────────
+        with st.expander("🔧 Debug: split breakdown", expanded=False):
+            split_map = _get_split_map()
+            n_seamless = sum(1 for sp in split_map.values() if sp == HF_SPLIT)
+            n_kemocon  = sum(1 for sp in split_map.values() if sp == HF_SPLIT_KEMOCON)
+            st.caption(f"seamless: {n_seamless}  ·  K-EmoCon: {n_kemocon}  ·  total: {len(split_map)}")
+            if st.button("🔄 Clear discovery cache", key="clear_split_cache"):
+                _get_split_map.clear()
+                st.rerun()
+
         sel_batch = st.number_input(
             "Batch",
             min_value=1,
