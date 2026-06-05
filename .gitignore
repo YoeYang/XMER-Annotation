@@ -5,6 +5,10 @@ annotations.json
 .streamlit/secrets.toml
 *.json
 !package.json
+!data/samples_CPM.json
+
+# CPM 归集视频（约 400MB，存放在 Hugging Face，不提交）
+videos_upload/
 
 # Python
 __pycache__/
