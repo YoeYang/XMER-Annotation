@@ -200,6 +200,7 @@ def init_state():
         "current_idx":       0,
         "local_annotations": {},
         "resume_needed":     False,
+        "gsheet_loaded":     False,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -251,23 +252,28 @@ def show_instructions():
 # SECTION 6: 标注主页面
 # ============================================================
 
-def seed_widgets(sid, sample, existing):
-    """把已保存答案 / 预填默认值写入 widget session_state（仅当 key 未存在）。"""
-    def setdefault(wk, val):
-        if wk not in st.session_state:
+def seed_widgets(sid, sample, existing, force=False):
+    """把已保存答案 / 预填默认值写入 widget session_state。
+    force=True 时强制覆盖已有值（用于 gsheets 回溯同步）。"""
+    def put(wk, val):
+        if force or wk not in st.session_state:
             st.session_state[wk] = val
 
-    setdefault(f"video_desc_{sid}", existing.get("video_desc") or signals_to_lines(sample["video_signals"]))
-    setdefault(f"audio_desc_{sid}", existing.get("audio_desc") or signals_to_lines(sample["audio_signals"]))
-    setdefault(f"text_desc_{sid}",  existing.get("text_desc")  or signals_to_lines(sample["text_signals"]))
+    put(f"video_desc_{sid}", existing.get("video_desc") or signals_to_lines(sample["video_signals"]))
+    put(f"audio_desc_{sid}", existing.get("audio_desc") or signals_to_lines(sample["audio_signals"]))
+    put(f"text_desc_{sid}",  existing.get("text_desc")  or signals_to_lines(sample["text_signals"]))
     for dim in CPM_DIMS:
         k = dim["key"]
-        setdefault(f"{k}_{sid}", int(existing.get(k, sample[f"{k}_valence"])))
+        put(f"{k}_{sid}", int(existing.get(k, sample[f"{k}_valence"])))
     if existing.get("overall_sentiment"):
-        setdefault(f"overall_sentiment_{sid}", existing["overall_sentiment"])
+        put(f"overall_sentiment_{sid}", existing["overall_sentiment"])
+    elif force:
+        st.session_state.pop(f"overall_sentiment_{sid}", None)
     if existing.get("quality"):
-        setdefault(f"quality_{sid}", existing["quality"])
-    setdefault(f"notes_{sid}", existing.get("notes", ""))
+        put(f"quality_{sid}", existing["quality"])
+    elif force:
+        st.session_state.pop(f"quality_{sid}", None)
+    put(f"notes_{sid}", existing.get("notes", ""))
 
 
 def collect_answers(sid, sample):
@@ -302,6 +308,19 @@ def validate(answers):
 
 def show_annotation(samples):
     total = len(samples)
+
+    # ── 自动从 gsheets 同步历史（每次会话首次进入标注页触发）──
+    if not st.session_state.gsheet_loaded and st.session_state.annotator_id:
+        with st.spinner("正在从 Google Sheets 同步历史标注..."):
+            history = load_progress_from_gsheet(st.session_state.annotator_id)
+        if history:
+            st.session_state.local_annotations.update(history)
+            # 强制刷新当前样本的 widget state，使已保存结果立即回填
+            cur = samples[st.session_state.current_idx]
+            csid = cur["sample_id"]
+            if csid in history:
+                seed_widgets(csid, cur, history[csid], force=True)
+        st.session_state.gsheet_loaded = True
 
     # 恢复进度 → 跳到第一条未标注
     if st.session_state.get("resume_needed"):
