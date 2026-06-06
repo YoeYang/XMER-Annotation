@@ -60,6 +60,9 @@ CPM_MIN, CPM_MAX = -2, 2
 # 1c. 质量评价选项
 QUALITY_OPTIONS = ["好", "坏"]
 
+# 1d. 整体情绪选项
+SENTIMENT_OPTIONS = ["positive", "neutral", "negative"]
+
 
 # ============================================================
 # SECTION 2: 数据加载
@@ -104,7 +107,7 @@ SHEET_HEADERS = [
     "timestamp", "annotator_id", "dataset", "sample_id", "video_id", "clip_id",
     "video_desc", "audio_desc", "text_desc",
     "R", "I", "C", "N",
-    "quality", "notes",
+    "overall_sentiment", "quality", "notes",
 ]
 
 
@@ -145,6 +148,7 @@ def save_to_gsheet(sample: dict, answers: dict, annotator_id: str) -> bool:
         answers.get("I", ""),
         answers.get("C", ""),
         answers.get("N", ""),
+        answers.get("overall_sentiment", ""),
         answers.get("quality", ""),
         answers.get("notes", ""),
     ]
@@ -165,11 +169,12 @@ def load_progress_from_gsheet(annotator_id: str) -> dict:
                 continue
             sid = r["sample_id"]
             answers = {
-                "video_desc": r.get("video_desc", ""),
-                "audio_desc": r.get("audio_desc", ""),
-                "text_desc":  r.get("text_desc", ""),
-                "quality":    r.get("quality") or None,
-                "notes":      r.get("notes", ""),
+                "video_desc":        r.get("video_desc", ""),
+                "audio_desc":        r.get("audio_desc", ""),
+                "text_desc":         r.get("text_desc", ""),
+                "overall_sentiment": r.get("overall_sentiment") or None,
+                "quality":           r.get("quality") or None,
+                "notes":             r.get("notes", ""),
             }
             for dim in ("R", "I", "C", "N"):
                 v = r.get(dim, "")
@@ -219,7 +224,9 @@ def show_instructions():
 **② CPM 四维打分**　依据**情境卡片 + 上下文**，从当事人视角对四个维度打分
 （范围 −2 ~ +2）。滑块已用 LLM 预打分初始化，你可以调整。
 
-**③ 质量评价**　对该样本整体质量给出「好 / 坏」判断。
+**③ 整体情绪判断**　综合视频、音频、文本，判断该片段整体情绪倾向：positive / neutral / negative，三选一。
+
+**④ 质量评价**　对该样本整体质量给出「好 / 坏」判断。
 
 > 顶部展示视频、情境卡片、上下文；冲突参考信息（is_conflict / reasoning 等）
 > 折叠在「参考信息」里，仅供参考。
@@ -256,6 +263,8 @@ def seed_widgets(sid, sample, existing):
     for dim in CPM_DIMS:
         k = dim["key"]
         setdefault(f"{k}_{sid}", int(existing.get(k, sample[f"{k}_valence"])))
+    if existing.get("overall_sentiment"):
+        setdefault(f"overall_sentiment_{sid}", existing["overall_sentiment"])
     if existing.get("quality"):
         setdefault(f"quality_{sid}", existing["quality"])
     setdefault(f"notes_{sid}", existing.get("notes", ""))
@@ -263,11 +272,12 @@ def seed_widgets(sid, sample, existing):
 
 def collect_answers(sid, sample):
     a = {
-        "video_desc": st.session_state.get(f"video_desc_{sid}", ""),
-        "audio_desc": st.session_state.get(f"audio_desc_{sid}", ""),
-        "text_desc":  st.session_state.get(f"text_desc_{sid}", ""),
-        "quality":    st.session_state.get(f"quality_{sid}"),
-        "notes":      st.session_state.get(f"notes_{sid}", ""),
+        "video_desc":        st.session_state.get(f"video_desc_{sid}", ""),
+        "audio_desc":        st.session_state.get(f"audio_desc_{sid}", ""),
+        "text_desc":         st.session_state.get(f"text_desc_{sid}", ""),
+        "overall_sentiment": st.session_state.get(f"overall_sentiment_{sid}"),
+        "quality":           st.session_state.get(f"quality_{sid}"),
+        "notes":             st.session_state.get(f"notes_{sid}", ""),
     }
     for dim in CPM_DIMS:
         k = dim["key"]
@@ -283,8 +293,10 @@ def validate(answers):
         missing.append("① 音频模态描述")
     if not answers.get("text_desc", "").strip():
         missing.append("① 文本模态描述")
+    if not answers.get("overall_sentiment"):
+        missing.append("③ 整体情绪判断")
     if not answers.get("quality"):
-        missing.append("③ 质量评价")
+        missing.append("④ 质量评价")
     return missing
 
 
@@ -430,8 +442,16 @@ def show_annotation(samples):
 
     st.divider()
 
-    # ── 阶段3：质量评价 ──
-    st.markdown("### ③ 样本质量评价")
+    # ── 阶段3：整体情绪判断 ──
+    st.markdown("### ③ 整体情绪判断")
+    st.caption("综合视频、音频、文本，判断该片段的整体情绪倾向。")
+    st.radio("整体情绪", SENTIMENT_OPTIONS, index=None, horizontal=True,
+             key=f"overall_sentiment_{sid}", label_visibility="collapsed")
+
+    st.divider()
+
+    # ── 阶段4：质量评价 ──
+    st.markdown("### ④ 样本质量评价")
     st.radio("该样本整体质量", QUALITY_OPTIONS, index=None, horizontal=True,
              key=f"quality_{sid}", label_visibility="collapsed")
 
