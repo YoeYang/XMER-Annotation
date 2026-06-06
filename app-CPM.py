@@ -201,6 +201,7 @@ def init_state():
         "local_annotations": {},
         "resume_needed":     False,
         "gsheet_loaded":     False,
+        "displayed_sid":     None,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -236,15 +237,12 @@ def show_instructions():
     name = st.text_input("姓名或 ID", value=st.session_state.annotator_id,
                          placeholder="例如：Yoe")
     if st.button("开始标注 →", type="primary", disabled=not name.strip()):
-        annotator_id = name.strip()
-        st.session_state.annotator_id = annotator_id
-        with st.spinner("正在读取历史进度..."):
-            history = load_progress_from_gsheet(annotator_id)
-        if history:
-            st.session_state.local_annotations = history
+        st.session_state.annotator_id = name.strip()
         st.session_state.page = "annotation"
         st.session_state.current_idx = 0
         st.session_state.resume_needed = True
+        st.session_state.gsheet_loaded = False   # 触发 annotation 页自动同步
+        st.session_state.displayed_sid = None
         st.rerun()
 
 
@@ -316,12 +314,7 @@ def show_annotation(samples):
         st.session_state.gsheet_loaded = True
         if history:
             st.session_state.local_annotations.update(history)
-            # 强制写入当前样本 widget state，然后 rerun 让 Streamlit 用新值渲染
-            cur = samples[st.session_state.current_idx]
-            csid = cur["sample_id"]
-            if csid in history:
-                seed_widgets(csid, cur, history[csid], force=True)
-        st.rerun()
+        st.session_state.displayed_sid = None   # 同步后强制重新回填当前样本
 
     # 恢复进度 → 跳到第一条未标注
     if st.session_state.get("resume_needed"):
@@ -339,8 +332,10 @@ def show_annotation(samples):
     sample = samples[st.session_state.current_idx]
     sid = sample["sample_id"]
     existing = st.session_state.local_annotations.get(sid, {})
-    # 有历史记录时强制回填（与 app2.py _load_sample_for_edit 保持一致）
-    seed_widgets(sid, sample, existing, force=bool(existing))
+    # 仅在切换到新样本时回填一次；同一样本后续 rerun 不再覆盖，保护用户的编辑
+    if st.session_state.get("displayed_sid") != sid:
+        seed_widgets(sid, sample, existing, force=bool(existing))
+        st.session_state.displayed_sid = sid
 
     # ── 侧栏 ──
     with st.sidebar:
