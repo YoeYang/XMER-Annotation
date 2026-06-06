@@ -313,14 +313,15 @@ def show_annotation(samples):
     if not st.session_state.gsheet_loaded and st.session_state.annotator_id:
         with st.spinner("正在从 Google Sheets 同步历史标注..."):
             history = load_progress_from_gsheet(st.session_state.annotator_id)
+        st.session_state.gsheet_loaded = True
         if history:
             st.session_state.local_annotations.update(history)
-            # 强制刷新当前样本的 widget state，使已保存结果立即回填
+            # 强制写入当前样本 widget state，然后 rerun 让 Streamlit 用新值渲染
             cur = samples[st.session_state.current_idx]
             csid = cur["sample_id"]
             if csid in history:
                 seed_widgets(csid, cur, history[csid], force=True)
-        st.session_state.gsheet_loaded = True
+        st.rerun()
 
     # 恢复进度 → 跳到第一条未标注
     if st.session_state.get("resume_needed"):
@@ -338,7 +339,8 @@ def show_annotation(samples):
     sample = samples[st.session_state.current_idx]
     sid = sample["sample_id"]
     existing = st.session_state.local_annotations.get(sid, {})
-    seed_widgets(sid, sample, existing)
+    # 有历史记录时强制回填（与 app2.py _load_sample_for_edit 保持一致）
+    seed_widgets(sid, sample, existing, force=bool(existing))
 
     # ── 侧栏 ──
     with st.sidebar:
